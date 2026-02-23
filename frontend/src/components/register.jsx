@@ -9,6 +9,7 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
         { value: 'easy', label: 'Easy', color: 'emerald', description: '2-3 variables' },
         { value: 'medium', label: 'Medium', color: 'cyan', description: '3-4 variables' },
         { value: 'hard', label: 'Hard', color: 'amber', description: '5-6 variables' },
+        { value: 'timed', label: 'Timed Challenge', color: 'rose', description: 'Daily Timed Challenge!' },
         { value: 'progressive', label: 'Progressive', color: 'purple', description: 'Adaptive difficulty' }
     ]
 
@@ -19,6 +20,7 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
             easy: 'from-emerald-600 to-green-600 border-emerald-500/50',
             medium: 'from-cyan-600 to-blue-600 border-cyan-500/50',
             hard: 'from-amber-600 to-orange-600 border-amber-500/50',
+            timed: 'from-rose-600 to-pink-600 border-rose-500/50',
             progressive: 'from-purple-600 to-pink-600 border-purple-500/50'
         }
         return colors[diff] || colors.medium
@@ -27,12 +29,13 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
 
     const createUser = async (username, difficulty) => {
         try {
-            const response = await fetch("https://kmap-gameee-backend.vercel.app/user", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username, difficulty }),
+            // TODO: Change to https://kmap-gameee.vercel.app/user
+            const response = await fetch("http://localhost:8000/user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username, difficulty }),
             });
 
             const data = await response.json();
