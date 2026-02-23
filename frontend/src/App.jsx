@@ -3,6 +3,7 @@ import './App.css'
 import Register from './components/register.jsx'
 import Kmap from './components/Kmap.jsx';
 import AnswerCard from './components/AnswerCard.jsx';
+import TimeAttackCard from './components/TimeAttackCard.jsx';
 
 function App() {
   const [globalName, setGlobalName] = useState('');
@@ -10,6 +11,7 @@ function App() {
   const [globalState, setGlobalState] = useState('hide');
   const [mapKey, setMapKey] = useState(0);
   const [slideDir, setSlideDir] = useState('in');
+  const [isLastAnswerCorrect, setIsLastAnswerCorrect] = useState(true);
   const prevGameState = useRef(null);
 
   useEffect(() => {
@@ -79,6 +81,7 @@ function App() {
                 terms={gameState.q_terms}
                 groupings={gameState.q_groupings}
                 globalState={globalState}
+                showGroupings={gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect}
               />
             </div>
 
@@ -87,12 +90,22 @@ function App() {
 
         
             <div className="flex-none w-full max-w-md card-fade-in mb-10">
-              <AnswerCard
-                gameState={gameState}
-                setGlobalState={setGlobalState}
-                globalState={globalState}
-                setGameState={setGameState}
-              />
+              {gameState?.is_time_attack ? (
+                <TimeAttackCard
+                  gameState={gameState}
+                  setGlobalState={setGlobalState}
+                  globalState={globalState}
+                  setGameState={setGameState}
+                />
+              ) : (
+                <AnswerCard
+                  gameState={gameState}
+                  setGlobalState={setGlobalState}
+                  globalState={globalState}
+                  setGameState={setGameState}
+                  setIsLastAnswerCorrect={setIsLastAnswerCorrect}
+                />
+              )}
             </div>
           </div>
         )}
@@ -107,7 +120,7 @@ function App() {
         <div className="absolute fixed bottom-4 left-6 text-slate-400 opacity-20 z-0 select-none leading-tight">
           <div className="text-lg md:text-5xl font-bold">Kmap GamEEE</div>
           <div className="text-xs md:text-2xl">
-            by Francois Abedejos | Updated by Shaira Rodriguez
+            by Francois Abedejos | Updated by Shaira Rodriguez | Updated by Isaac Sy
           </div>
         </div>
       </div>

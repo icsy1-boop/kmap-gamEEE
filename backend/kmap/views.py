@@ -2,12 +2,16 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, DailyChallenge, DailyChallengeResult
+from .models import User, DailyChallenge, DailyChallengeResult, TimeAttackResult
 from .serializers import UserSerializer
 from . import kmap_solver
 from django.utils import timezone
 from datetime import datetime
 import pytz
+
+
+TIME_LIMIT = 30
+
 
 
 def get_or_create_daily_challenge():
@@ -375,3 +379,136 @@ class GetDailyChallengeLeaderboard(APIView):
         # else:
         #     serializer = UserSerializer(user)
         #     return Response({'result': result, 'user': serializer.data}, status=status.HTTP_200_OK)
+
+
+class StartTimeAttack(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        difficulty = request.data.get('difficulty')
+        
+        if not username or difficulty not in [1, 2, 3]:
+            return Response({'error': 'Invalid username or difficulty'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate first question
+        num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+        
+        return Response({
+            'username': username,
+            'difficulty': difficulty,
+            'questions_solved': 0,
+            'time_remaining': TIME_LIMIT,
+            'q_num_var': num_var,
+            'q_form': form,
+            'q_terms': terms,
+            'q_dont_cares': dont_cares,
+            'q_groupings': groupings
+        }, status=status.HTTP_200_OK)
+
+
+class CheckTimeAttackAnswer(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        difficulty = request.data.get('difficulty')
+        questions_solved = request.data.get('questions_solved', 0)
+        time_remaining = request.data.get('time_remaining', 0)
+        
+        num_var = request.data.get('q_num_var')
+        form = request.data.get('q_form')
+        terms = request.data.get('q_terms')
+        dont_cares = request.data.get('q_dont_cares')
+        answer = request.data.get('answer')
+        
+        # Check the answer
+        result, answers = kmap_solver.minimizeAndCheck(
+            num_var=num_var,
+            form_terms=form,
+            terms=terms,
+            dont_cares=dont_cares,
+            input_answer=answer)
+        
+        if result != 1:
+            # Wrong answer - game over, don't save to leaderboard
+            return Response({
+                'result': 0,
+                'answers': answers,
+                'game_over': True,
+                'reason': 'Wrong answer - run is invalid'
+            }, status=status.HTTP_200_OK)
+        
+        # Correct answer
+        questions_solved += 1
+        
+        # Generate next question
+        num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+        
+        return Response({
+            'result': 1,
+            'answers': answers,
+            'questions_solved': questions_solved,
+            'time_remaining': time_remaining,
+            'q_num_var': num_var,
+            'q_form': form,
+            'q_terms': terms,
+            'q_dont_cares': dont_cares,
+            'q_groupings': groupings
+        }, status=status.HTTP_200_OK)
+
+
+class FinishTimeAttack(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        difficulty = request.data.get('difficulty')
+        questions_solved = request.data.get('questions_solved', 0)
+        is_valid = request.data.get('is_valid', False)
+        
+        if not username or difficulty not in [1, 2, 3]:
+            return Response({'error': 'Invalid request'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Only save to leaderboard if run is valid (no wrong answers)
+        if is_valid and questions_solved > 0:
+            TimeAttackResult.objects.create(
+                username=username,
+                difficulty=difficulty,
+                questions_solved=questions_solved
+            )
+        
+        # Get leaderboard for this difficulty
+        leaderboard = TimeAttackResult.objects.filter(
+            difficulty=difficulty
+        ).order_by('-questions_solved', 'created_at').values('username', 'questions_solved')[:10]
+        
+        # Find user's rank if they have a valid entry
+        user_rank = None
+        if is_valid and questions_solved > 0:
+            user_rank = TimeAttackResult.objects.filter(
+                difficulty=difficulty,
+                questions_solved__gt=questions_solved
+            ).count() + 1
+        
+        return Response({
+            'username': username,
+            'difficulty': difficulty,
+            'questions_solved': questions_solved,
+            'is_valid': is_valid,
+            'rank': user_rank,
+            'leaderboard': list(leaderboard)
+        }, status=status.HTTP_200_OK)
+
+
+class GetTimeAttackLeaderboard(APIView):
+    def get(self, request):
+        difficulty = request.query_params.get('difficulty')
+        
+        if difficulty not in ['1', '2', '3']:
+            return Response({'error': 'Invalid difficulty'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        difficulty = int(difficulty)
+        
+        leaderboard = TimeAttackResult.objects.filter(
+            difficulty=difficulty
+        ).order_by('-questions_solved', 'created_at').values('username', 'questions_solved')[:100]
+        
+        return Response({
+            'difficulty': difficulty,
+            'leaderboard': list(leaderboard)
+        }, status=status.HTTP_200_OK)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState }) => {
+const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState, setIsLastAnswerCorrect }) => {
     const [answer, setAnswer] = useState('');
     const [errorS, setErrorS] = useState(false);
     const [response, setResponse] = useState(null);
@@ -79,6 +79,10 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
                 if (result["result"] == 0 || result["result"] == 1) {
                     setGlobalState("show");
                     setResponse(result);
+                    // Track if answer is correct for Kmap groupings visibility
+                    if (setIsLastAnswerCorrect) {
+                        setIsLastAnswerCorrect(result["result"] == 1);
+                    }
                 } else {
                     setGlobalState("hide");
                     setErrorS(true);

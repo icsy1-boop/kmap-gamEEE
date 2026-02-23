@@ -46,4 +46,22 @@ class DailyChallengeResult(models.Model):
 
     def __str__(self):
         return f"{self.username} - {self.daily_challenge.date}"
+
+
+class TimeAttackResult(models.Model):
+    DIFFICULTY_CHOICES = [
+        (1, 'Easy'),
+        (2, 'Medium'),
+        (3, 'Hard'),
+    ]
     
+    username = models.CharField(max_length=50)
+    difficulty = models.IntegerField(choices=DIFFICULTY_CHOICES)
+    questions_solved = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-questions_solved', 'created_at']
+
+    def __str__(self):
+        return f"{self.username} - {self.get_difficulty_display()} - {self.questions_solved} solved"

@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState}) => {
+const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true}) => {
 
     const sizeMap = {
         5: "grid grid-cols-2 gap-4",
@@ -135,7 +135,7 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState}) => {
     };
 
     const renderGroups = (groupings) => {
-        if (!groupings) return null;
+        if (!groupings || !showGroupings) return null;
 
         return groupings.map((group, i) => {
             const colors = [
