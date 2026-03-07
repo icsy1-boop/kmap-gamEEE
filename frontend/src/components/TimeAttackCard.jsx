@@ -144,7 +144,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
                         <p className="text-slate-300 text-lg sm:text-xl">
                             {isValid 
                                 ? `Great job, ${gameState.username}!` 
-                                : `Wrong answer!`
+                                : `Wrong answer! Disappointing... You don't deserve to be on the leaderboard, ${gameState.username}.`
                             }
                         </p>
                     </div>
