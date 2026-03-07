@@ -145,7 +145,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
                             {isValid 
                                 ? `Great job, ${gameState.username}!` 
                                 : `You got a wrong answer. Having a mistake disqualifies you from the leaderboard. Try again next time! 
-                                <br/> <br/> You had a K-map mistake? Who u? - Adel`
+                                <br/> <br/> /n You had a K-map mistake? Who u? - Adel`
                             }
                         </p>
                     </div>
