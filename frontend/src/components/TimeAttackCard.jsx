@@ -144,7 +144,8 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
                         <p className="text-slate-300 text-lg sm:text-xl">
                             {isValid 
                                 ? `Great job, ${gameState.username}!` 
-                                : `Wrong answer! Disappointing... You don't deserve to be on the leaderboard, ${gameState.username}.`
+                                : `You got a wrong answer. Having a mistake disqualifies you from the leaderboard. Try again next time! 
+                                <br/> <br/> You had a K-map mistake? Who u? - Adel`
                             }
                         </p>
                     </div>
