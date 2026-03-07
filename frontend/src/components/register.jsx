@@ -6,6 +6,7 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
 
     const [difficulty, setDifficulty] = useState('medium')
     const [expandedSection, setExpandedSection] = useState('practice')
+    const blockClipboard = (e) => e.preventDefault();
 
     // Organize difficulties by category
     const difficultyCategories = {
@@ -118,6 +119,9 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            onCopy={blockClipboard}
+                            onPaste={blockClipboard}
+                            onCut={blockClipboard}
                             placeholder="Enter your username..."
                             className="w-full px-6 py-4 bg-slate-900/50 border-2 border-slate-600 rounded-xl text-white text-lg placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 shadow-inner"
                             required

@@ -10,6 +10,7 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
     const [timedFinished, setTimedFinished] = useState(false);
     const [finishError, setFinishError] = useState("");
+    const blockClipboard = (e) => e.preventDefault();
 
     // Animate the result banner in whenever globalState flips to "show"
     useEffect(() => {
@@ -306,6 +307,9 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
                             if (e.key === 'Enter' && globalState !== 'show') handleSubmit();
                         }}
                         placeholder="e.g., AB+BC'+A'C, (AB)(D')"
+                        onCopy={blockClipboard}
+                        onPaste={blockClipboard}
+                        onCut={blockClipboard}
                         className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/50 border-2
                             ${errorS ? "border-red-400" : "border-slate-400/30"}
                             rounded-xl text-white text-sm sm:text-base md:text-lg placeholder-slate-500

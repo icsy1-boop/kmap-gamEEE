@@ -16,6 +16,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
     const [isValid, setIsValid] = useState(true);
     const [resultVisible, setResultVisible] = useState(false);
     const [leaderboard, setLeaderboard] = useState([]);
+    const blockClipboard = (e) => e.preventDefault();
 
     // Timer
     useEffect(() => {
@@ -78,8 +79,8 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
             if (data.result !== 1) {
                 // Wrong answer - game over
                 setIsValid(false);
-                setGameOver(true);
                 setResponse(data);
+                await finishTimeAttack(false, questionsAnswered);
                 return;
             }
 
@@ -105,7 +106,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
         }
     };
 
-    const finishTimeAttack = async () => {
+    const finishTimeAttack = async (runIsValid = isValid, solvedCount = questionsAnswered) => {
         setGameOver(true);
         try {
             const response = await fetch(apiUrl("/finish-time-attack"), {
@@ -114,8 +115,8 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
                 body: JSON.stringify({
                     username: gameState.username,
                     difficulty: gameState.difficulty,
-                    questions_solved: questionsAnswered,
-                    is_valid: isValid
+                    questions_solved: solvedCount,
+                    is_valid: runIsValid
                 }),
             });
 
@@ -173,37 +174,35 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
                         </div>
                     </div>
 
-                    {isValid && (
-                        <div className="mb-6">
-                            <h2 className="text-xl font-bold text-cyan-400 mb-4">Leaderboard ({difficultyMap[gameState.difficulty]})</h2>
-                            <div className="space-y-2">
-                                {leaderboard && leaderboard.map((entry, idx) => (
-                                    <div 
-                                        key={idx}
-                                        className={`flex justify-between p-3 rounded-lg transition-all ${
-                                            entry.username === gameState.username
-                                                ? 'bg-violet-900/40 border-2 border-violet-500/50'
-                                                : 'bg-slate-800/50 border border-slate-600'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <span className="font-bold text-slate-300 w-6">#{idx + 1}</span>
-                                            <span className={`font-semibold ${
-                                                entry.username === gameState.username ? 'text-violet-300' : 'text-slate-300'
-                                            }`}>
-                                                {entry.username}
-                                            </span>
-                                        </div>
-                                        <span className={`font-bold ${
-                                            entry.username === gameState.username ? 'text-violet-400' : 'text-cyan-400'
+                    <div className="mb-6">
+                        <h2 className="text-xl font-bold text-cyan-400 mb-4">Leaderboard ({difficultyMap[gameState.difficulty]})</h2>
+                        <div className="space-y-2">
+                            {leaderboard && leaderboard.map((entry, idx) => (
+                                <div 
+                                    key={idx}
+                                    className={`flex justify-between p-3 rounded-lg transition-all ${
+                                        entry.username === gameState.username
+                                            ? 'bg-violet-900/40 border-2 border-violet-500/50'
+                                            : 'bg-slate-800/50 border border-slate-600'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-bold text-slate-300 w-6">#{idx + 1}</span>
+                                        <span className={`font-semibold ${
+                                            entry.username === gameState.username ? 'text-violet-300' : 'text-slate-300'
                                         }`}>
-                                            {entry.questions_solved} solved
+                                            {entry.username}
                                         </span>
                                     </div>
-                                ))}
-                            </div>
+                                    <span className={`font-bold ${
+                                        entry.username === gameState.username ? 'text-violet-400' : 'text-cyan-400'
+                                    }`}>
+                                        {entry.questions_solved} solved
+                                    </span>
+                                </div>
+                            ))}
                         </div>
-                    )}
+                    </div>
 
                     <button
                         type="button"
@@ -298,6 +297,9 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
                             if (e.key === 'Enter') checkAnswer();
                         }}
                         placeholder="e.g., AB+BC'+A'C, (AB)(D')"
+                        onCopy={blockClipboard}
+                        onPaste={blockClipboard}
+                        onCut={blockClipboard}
                         className={`w-full px-4 sm:px-6 py-3 sm:py-4 bg-slate-900/50 border-2
                             ${errorS ? "border-red-400" : "border-slate-400/30"}
                             rounded-xl text-white text-sm sm:text-base md:text-lg placeholder-slate-500
