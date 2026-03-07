@@ -33,7 +33,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         "ALLOWED_HOSTS",
-        "127.0.0.1,localhost,kmapeee.onrender.com",
+        "127.0.0.1,localhost,kmapback.vercel.app",
     ).split(",")
     if host.strip()
 ]
