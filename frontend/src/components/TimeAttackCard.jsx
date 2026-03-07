@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { apiUrl } from '../config/api';
 
 
 const TIME_LIMIT = 30;
@@ -55,8 +56,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
         }
 
         try {
-            // TODO: Change to https://kmap-gameee.vercel.app/check-time-attack
-            const response = await fetch("http://localhost:8000/check-time-attack", {
+            const response = await fetch(apiUrl("/check-time-attack"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -108,8 +108,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
     const finishTimeAttack = async () => {
         setGameOver(true);
         try {
-            // TODO: Change to https://kmap-gameee.vercel.app/finish-time-attack
-            const response = await fetch("http://localhost:8000/finish-time-attack", {
+            const response = await fetch(apiUrl("/finish-time-attack"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

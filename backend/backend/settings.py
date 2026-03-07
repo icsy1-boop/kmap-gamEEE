@@ -30,10 +30,13 @@ SECRET_KEY = "testtestestet"
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'kmap-gameee-backend.vercel.app',
-    '127.0.0.1', 
-    'localhost'
-    ]
+    host.strip()
+    for host in os.getenv(
+        "ALLOWED_HOSTS",
+        "127.0.0.1,localhost,kmapeee.onrender.com",
+    ).split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -62,9 +65,12 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    # 'http://localhost:4200',
-    'http://localhost:5173',
-    'https://kmap-gameee.vercel.app'
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:5173,https://kmaptime.vercel.app",
+    ).split(",")
+    if origin.strip()
 ]
 
 ROOT_URLCONF = 'backend.urls'

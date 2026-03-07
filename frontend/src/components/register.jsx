@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react'
+import { apiUrl } from '../config/api';
 
 const Register = ({ globalName, setGlobalName, setGameState }) => {
 
@@ -41,21 +42,19 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
 
     const createUser = async (username, difficulty) => {
         try {
-            // TODO: Change to https://kmap-gameee.vercel.app/user
-            
             // Map difficulty values
             let difficultyValue = difficulty;
-            let apiEndpoint = "http://localhost:8000/user";
+            let apiEndpoint = apiUrl("/user");
             
             if (difficulty === 'time-attack-easy') {
                 difficultyValue = 'time-attack-easy';
-                apiEndpoint = "http://localhost:8000/start-time-attack";
+                apiEndpoint = apiUrl("/start-time-attack");
             } else if (difficulty === 'time-attack-medium') {
                 difficultyValue = 'time-attack-medium';
-                apiEndpoint = "http://localhost:8000/start-time-attack";
+                apiEndpoint = apiUrl("/start-time-attack");
             } else if (difficulty === 'time-attack-hard') {
                 difficultyValue = 'time-attack-hard';
-                apiEndpoint = "http://localhost:8000/start-time-attack";
+                apiEndpoint = apiUrl("/start-time-attack");
             }
             
             const timeAttackDifficultyMap = {

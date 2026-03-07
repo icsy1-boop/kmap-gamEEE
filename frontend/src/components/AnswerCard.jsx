@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { apiUrl } from '../config/api';
 
 const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState, setIsLastAnswerCorrect }) => {
     const [answer, setAnswer] = useState('');
@@ -38,8 +39,7 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
             setErrorS(true);
         } else {
             try {
-                // TODO: Change to https://kmap-gameee.vercel.app/game
-                const response = await fetch("http://localhost:8000/game", {
+                const response = await fetch(apiUrl("/game"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ type: type, user: userData }),
@@ -114,8 +114,7 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
                 elapsed_seconds: elapsedSeconds
             });
             
-            // TODO: Change to https://kmap-gameee.vercel.app/finish-timed
-            const response = await fetch("http://localhost:8000/finish-timed", {
+            const response = await fetch(apiUrl("/finish-timed"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
