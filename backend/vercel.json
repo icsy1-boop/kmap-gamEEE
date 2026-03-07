@@ -11,5 +11,5 @@
         "dest": "backend/wsgi.py"
       }
     ],
-    "installCommand": "pip install -r api/requirements.txt"
+    "installCommand": "pip install -r requirements.txt"
 }

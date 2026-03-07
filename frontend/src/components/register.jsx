@@ -76,6 +76,9 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
             });
 
             const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to start challenge");
+            }
             // Add flag for time attack mode
             if (difficultyValue.startsWith('time-attack')) {
                 data.is_time_attack = true;
