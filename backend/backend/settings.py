@@ -105,9 +105,11 @@ DATABASES = {
     }
 }
 
-if os.getenv("DATABASE_URL"):
+database_url = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL")
+
+if database_url:
     DATABASES["default"] = dj_database_url.parse(
-        os.environ["DATABASE_URL"],
+        database_url,
         conn_max_age=600,
         ssl_require=True,
     )
