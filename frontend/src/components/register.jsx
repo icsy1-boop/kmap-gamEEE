@@ -6,6 +6,7 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
 
     const [difficulty, setDifficulty] = useState('medium')
     const [expandedSection, setExpandedSection] = useState('practice')
+    const [submitError, setSubmitError] = useState('')
     const blockClipboard = (e) => e.preventDefault();
 
     // Organize difficulties by category
@@ -90,6 +91,7 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
             setGameState(data);
             return data;
         } catch (error) {
+            setSubmitError(error.message || "Failed to start challenge");
             console.error(error);
         }
     };
@@ -118,7 +120,10 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
                         <input
                             type="text"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                setSubmitError('');
+                            }}
                             onCopy={blockClipboard}
                             onPaste={blockClipboard}
                             onCut={blockClipboard}
@@ -128,6 +133,9 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
                         />
                         <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/5 to-blue-500/5 pointer-events-none"></div>
                     </div>
+                    {submitError && (
+                        <p className="mt-2 text-sm text-red-400">{submitError}</p>
+                    )}
                 </div>
 
                 <div className="space-y-3">
