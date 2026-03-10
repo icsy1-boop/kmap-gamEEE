@@ -623,11 +623,11 @@ def validate_username(username):
     if len(cleaned) < 3 or len(cleaned) > 20:
         return "Username must be 3 to 20 characters long"
 
-    if not re.fullmatch(r"[A-Za-z0-9_ ]+", cleaned):
-        return "Username can only contain letters, numbers, spaces, and underscores"
+    if not re.fullmatch(r"[A-Za-z_ ]+", cleaned):
+        return "Username can only contain letters, spaces, and underscores"
 
-    normalized = re.sub(r"[^a-z0-9]", "", cleaned.lower())
-    if any(term in normalized for term in BLOCKED_USERNAME_TERMS):
+    normalized_letters = re.sub(r"[^a-z]", "", cleaned.lower())
+    if any(term in normalized_letters for term in BLOCKED_USERNAME_TERMS):
         return "This username is not allowed"
 
     return None
