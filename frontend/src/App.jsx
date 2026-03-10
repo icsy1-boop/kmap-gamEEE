@@ -4,6 +4,7 @@ import Register from './components/register.jsx'
 import Kmap from './components/Kmap.jsx';
 import AnswerCard from './components/AnswerCard.jsx';
 import TimeAttackCard from './components/TimeAttackCard.jsx';
+import About from './components/About.jsx';
 
 function App() {
   const [globalName, setGlobalName] = useState('');
@@ -12,6 +13,7 @@ function App() {
   const [mapKey, setMapKey] = useState(0);
   const [slideDir, setSlideDir] = useState('in');
   const [isLastAnswerCorrect, setIsLastAnswerCorrect] = useState(true);
+  const [showAbout, setShowAbout] = useState(false);
   const prevGameState = useRef(null);
 
   useEffect(() => {
@@ -57,7 +59,18 @@ function App() {
       `}</style>
 
       
+      {showAbout ? (
+        <About onBack={() => setShowAbout(false)} />
+      ) : (
       <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center relative justify-center p-6">
+
+        <button
+          type="button"
+          onClick={() => setShowAbout(true)}
+          className="absolute top-4 right-6 px-4 py-2 rounded-lg border border-cyan-500/40 text-cyan-200 hover:bg-cyan-900/20 transition z-10"
+        >
+          About
+        </button>
 
         {globalName === '' ? (
           <Register
@@ -124,6 +137,7 @@ function App() {
           </div>
         </div>
       </div>
+      )}
     </>
   );
 }
