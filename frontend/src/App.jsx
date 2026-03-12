@@ -59,18 +59,20 @@ function App() {
       `}</style>
 
       
-      {showAbout ? (
+      {showAbout && globalName === '' ? (
         <About onBack={() => setShowAbout(false)} />
       ) : (
       <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center relative justify-center p-6">
 
-        <button
-          type="button"
-          onClick={() => setShowAbout(true)}
-          className="absolute top-4 right-6 px-4 py-2 rounded-lg border border-cyan-500/40 text-cyan-200 hover:bg-cyan-900/20 transition z-10"
-        >
-          About
-        </button>
+        {globalName === '' && (
+          <button
+            type="button"
+            onClick={() => setShowAbout(true)}
+            className="absolute top-4 right-6 px-4 py-2 rounded-lg border border-cyan-500/40 text-cyan-200 hover:bg-cyan-900/20 transition z-10"
+          >
+            About
+          </button>
+        )}
 
         {globalName === '' ? (
           <Register

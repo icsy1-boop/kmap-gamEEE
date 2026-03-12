@@ -24,7 +24,7 @@ const About = ({ onBack }) => {
 
         <div className="space-y-4 text-slate-300">
           <div>
-            <div className="text-sm uppercase tracking-wide text-cyan-300">Credits</div>
+            <div className="text-sm uppercase tracking-wide text-cyan-300">Contributors</div>
             <ul className="mt-2 space-y-1">
               <li>Adelson Chua — Complain Here</li>
               <li>Lawrence Quizon — If above not available</li>
