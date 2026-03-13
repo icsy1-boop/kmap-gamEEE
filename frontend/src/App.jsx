@@ -81,6 +81,7 @@ function App() {
             setGlobalName={setGlobalName}
             setGameState={setGameState}
             setIsMapLoading={setIsMapLoading}
+            isMapLoading={isMapLoading}
           />
         ) : (
           

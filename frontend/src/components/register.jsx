@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { apiUrl } from '../config/api';
 
-const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading }) => {
+const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, isMapLoading }) => {
 
     const [difficulty, setDifficulty] = useState('medium')
     const [expandedSection, setExpandedSection] = useState('practice')
@@ -229,16 +229,16 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading }) 
 
                 <button
                     type="submit"
-                    disabled={!name.trim()}
+                    disabled={!name.trim() || isMapLoading}
                     onClick={() => {createUser(name, difficulty)}}
                     className={`w-full px-8 py-5 bg-gradient-to-r ${getDifficultyColor(difficulty)} text-white font-bold my-5 text-xl rounded-xl shadow-2xl transition-all duration-200 transform ${
-                        name.trim() 
+                        name.trim() && !isMapLoading
                             ? 'hover:scale-[1.02] active:scale-[0.98] cursor-pointer' 
                             : 'opacity-50 cursor-not-allowed'
                     }`}
                 >
                     <span className="flex items-center justify-center gap-2">
-                        Start Training
+                        {isMapLoading ? 'Generating…' : 'Start Training'}
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
