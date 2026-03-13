@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { apiUrl } from '../config/api';
 
-const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState, setIsLastAnswerCorrect }) => {
+const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState, setIsLastAnswerCorrect, setIsMapLoading }) => {
     const [answer, setAnswer] = useState('');
     const [errorS, setErrorS] = useState(false);
     const [response, setResponse] = useState(null);
@@ -40,6 +40,7 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
             setErrorS(true);
         } else {
             try {
+                setIsMapLoading(true);
                 const response = await fetch(apiUrl("/game"), {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -50,6 +51,8 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
                 return data;
             } catch (error) {
                 console.error("Error:", error);
+            } finally {
+                setIsMapLoading(false);
             }
         }
     };

@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { apiUrl } from '../config/api';
 
-const Register = ({ globalName, setGlobalName, setGameState }) => {
+const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading }) => {
 
     const [difficulty, setDifficulty] = useState('medium')
     const [expandedSection, setExpandedSection] = useState('practice')
@@ -44,6 +44,7 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
 
     const createUser = async (username, difficulty) => {
         try {
+            setIsMapLoading(true);
             // Map difficulty values
             let difficultyValue = difficulty;
             let apiEndpoint = apiUrl("/user");
@@ -93,6 +94,8 @@ const Register = ({ globalName, setGlobalName, setGameState }) => {
         } catch (error) {
             setSubmitError(error.message || "Failed to start challenge");
             console.error(error);
+        } finally {
+            setIsMapLoading(false);
         }
     };
 

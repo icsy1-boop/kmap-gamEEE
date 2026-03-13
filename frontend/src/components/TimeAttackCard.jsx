@@ -5,7 +5,7 @@ import { apiUrl } from '../config/api';
 const TIME_LIMIT = 30;
 
 
-const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }) => {
+const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState, setIsMapLoading }) => {
     const [answer, setAnswer] = useState('');
     const [errorS, setErrorS] = useState(false);
     const [response, setResponse] = useState(null);
@@ -57,6 +57,7 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
         }
 
         try {
+            setIsMapLoading(true);
             const response = await fetch(apiUrl("/check-time-attack"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -103,6 +104,8 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState }
         } catch (error) {
             console.error("Error checking answer:", error);
             setErrorMessage("Failed to submit answer");
+        } finally {
+            setIsMapLoading(false);
         }
     };
 

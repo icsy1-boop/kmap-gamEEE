@@ -14,6 +14,7 @@ function App() {
   const [slideDir, setSlideDir] = useState('in');
   const [isLastAnswerCorrect, setIsLastAnswerCorrect] = useState(true);
   const [showAbout, setShowAbout] = useState(false);
+  const [isMapLoading, setIsMapLoading] = useState(false);
   const prevGameState = useRef(null);
 
   useEffect(() => {
@@ -79,6 +80,7 @@ function App() {
             globalName={globalName}
             setGlobalName={setGlobalName}
             setGameState={setGameState}
+            setIsMapLoading={setIsMapLoading}
           />
         ) : (
           
@@ -87,7 +89,7 @@ function App() {
             
             <div
               key={mapKey}
-              className={`flex-none ${slideDir === 'in' ? 'kmap-slide-in' : 'kmap-slide-out'}`}
+              className={`flex-none relative ${slideDir === 'in' ? 'kmap-slide-in' : 'kmap-slide-out'}`}
             >
               <Kmap
                 dont_cares={gameState.q_dont_cares}
@@ -98,6 +100,14 @@ function App() {
                 globalState={globalState}
                 showGroupings={gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect}
               />
+              {isMapLoading && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-slate-900/70 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 text-cyan-200">
+                    <div className="h-5 w-5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
+                    <span className="text-sm sm:text-base">Generating K‑Map…</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             
@@ -111,6 +121,7 @@ function App() {
                   setGlobalState={setGlobalState}
                   globalState={globalState}
                   setGameState={setGameState}
+                  setIsMapLoading={setIsMapLoading}
                 />
               ) : (
                 <AnswerCard
@@ -119,6 +130,7 @@ function App() {
                   globalState={globalState}
                   setGameState={setGameState}
                   setIsLastAnswerCorrect={setIsLastAnswerCorrect}
+                  setIsMapLoading={setIsMapLoading}
                 />
               )}
             </div>
