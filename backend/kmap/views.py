@@ -879,7 +879,7 @@ class FinishTimedChallenge(APIView):
         # Get the leaderboard
         leaderboard = DailyChallengeResult.objects.filter(
             daily_challenge=daily_challenge
-        ).order_by('completion_time_seconds').values('username', 'completion_time_seconds')[:10]
+        ).order_by('completion_time_seconds').values('username', 'completion_time_seconds')[:5]
         
         # Find user's rank
         user_rank = DailyChallengeResult.objects.filter(
