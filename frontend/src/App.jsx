@@ -5,6 +5,7 @@ import Kmap from './components/Kmap.jsx';
 import AnswerCard from './components/AnswerCard.jsx';
 import TimeAttackCard from './components/TimeAttackCard.jsx';
 import About from './components/About.jsx';
+import TutorialPanel from './components/TutorialPanel.jsx';
 
 function App() {
   const [globalName, setGlobalName] = useState('');
@@ -108,7 +109,33 @@ function App() {
                 terms={gameState.q_terms}
                 groupings={gameState.q_groupings}
                 globalState={globalState}
-                showGroupings={gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect}
+                showGroupings={gameState?.is_tutorial ? true : (gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect)}
+                cellValues={gameState?.is_tutorial ? gameState.tutorial_cells : undefined}
+                onToggleCell={gameState?.is_tutorial ? (index => {
+                  const nextCells = [...gameState.tutorial_cells];
+                  const current = nextCells[index];
+                  const nextVal = current === 0 ? 1 : current === 1 ? "x" : 0;
+                  nextCells[index] = nextVal;
+
+                  const terms = [];
+                  const dontCares = [];
+                  for (let i = 0; i < nextCells.length; i += 1) {
+                    if (nextCells[i] === "x") {
+                      dontCares.push(i);
+                    } else if (gameState.q_form === "min" && nextCells[i] === 1) {
+                      terms.push(i);
+                    } else if (gameState.q_form === "max" && nextCells[i] === 0) {
+                      terms.push(i);
+                    }
+                  }
+
+                  setGameState({
+                    ...gameState,
+                    tutorial_cells: nextCells,
+                    q_terms: terms,
+                    q_dont_cares: dontCares,
+                  });
+                }) : undefined}
               />
               {isMapLoading && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-slate-900/70 backdrop-blur-sm">
@@ -125,7 +152,13 @@ function App() {
 
         
             <div className="flex-none w-full max-w-md card-fade-in mb-10">
-              {gameState?.is_time_attack ? (
+              {gameState?.is_tutorial ? (
+                <TutorialPanel
+                  gameState={gameState}
+                  setGameState={setGameState}
+                  setIsMapLoading={setIsMapLoading}
+                />
+              ) : gameState?.is_time_attack ? (
                 <TimeAttackCard
                   gameState={gameState}
                   setGlobalState={setGlobalState}

@@ -1154,3 +1154,29 @@ class GetTimeAttackLeaderboard(APIView):
             'difficulty': difficulty,
             'leaderboard': list(leaderboard)
         }, status=status.HTTP_200_OK)
+
+
+class TutorialSolve(APIView):
+    def post(self, request):
+        num_var = int(request.data.get('num_var', 4))
+        form_terms = request.data.get('form_terms', 'min')
+        terms = request.data.get('terms', [])
+        dont_cares = request.data.get('dont_cares', [])
+
+        if num_var != 4:
+            return Response({'error': 'Tutorial supports only 4 variables'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if form_terms not in ['min', 'max']:
+            return Response({'error': 'Invalid form_terms'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            result = kmap_solver.tutorial_solve(
+                num_var=num_var,
+                terms=list(map(int, terms)),
+                dont_cares=list(map(int, dont_cares)),
+                form_terms=form_terms
+            )
+        except Exception:
+            return Response({'error': 'Failed to solve tutorial map'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(result, status=status.HTTP_200_OK)

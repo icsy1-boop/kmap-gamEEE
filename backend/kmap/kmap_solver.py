@@ -340,6 +340,136 @@ def randomizeQuestion(difficulty: int, num_dc_override: int | None = None) -> tu
     return num_var, form, final_terms, dont_cares, groupings
 
 
+def _apply_term_letter_mapping(num_var: int) -> list[str]:
+    terms = [chr(65 + x) for x in range(num_var)]
+    if num_var == 2:
+        terms[0], terms[1] = terms[1], terms[0]
+    elif num_var == 3:
+        terms[0], terms[1], terms[2] = terms[2], terms[0], terms[1]
+    elif num_var == 4:
+        terms[0:2], terms[2:4] = terms[2:4], terms[0:2]
+    elif num_var == 5:
+        terms[1:3], terms[3:5] = terms[3:5], terms[1:3]
+    elif num_var == 6:
+        terms[0], terms[1], terms[2:4], terms[4:6] = terms[1], terms[0], terms[4:6], terms[2:4]
+    return terms
+
+
+def _implicant_to_literal_set(num_var: int, implicant: str, form_terms: str = "min") -> set[str]:
+    mapped_terms = _apply_term_letter_mapping(num_var)
+    literals = set()
+    for idx, ch in enumerate(implicant):
+        if ch == "-":
+            continue
+        if form_terms == "min":
+            literals.add(mapped_terms[idx] if ch == "1" else mapped_terms[idx] + "'")
+        else:
+            literals.add(mapped_terms[idx] + "'" if ch == "1" else mapped_terms[idx])
+    return literals
+
+
+def _groups_to_groupings(num_var: int, groups: list[set[int]]) -> list[list[int]]:
+    _, terms = gg.generateTerms(num_var)
+    groupings = []
+    for i in range(len(groups)):
+        group = groups[i]
+        group_indices = []
+        for term in group:
+            group_indices.extend(list(zip(*np.where(terms == term))))
+
+        if len(group_indices) == 0:
+            continue
+
+        if len(group_indices[0]) == 3:
+            group_indices = [(r, c, l) for (l, r, c) in group_indices]
+        elif len(group_indices[0]) == 4:
+            group_indices = [(r, c, lr, lc) for (lr, lc, r, c) in group_indices]
+
+        overall_group_indices = []
+        if num_var == 6:
+            overall_group_indices = [[group for group in group_indices if group[2] * 2 + group[3] == i] for i in range(4)]
+        elif num_var == 5:
+            overall_group_indices = [[group for group in group_indices if group[2] == i] for i in range(2)]
+        else:
+            overall_group_indices = [group_indices]
+
+        for layer_idx, group_indices in enumerate(overall_group_indices):
+            if len(group_indices) == 0:
+                continue
+
+            row_indices = sorted(list(set([group[0] for group in group_indices])))
+            col_indices = sorted(list(set([group[1] for group in group_indices])))
+
+            group_type = 0
+            if any(row_index not in row_indices for row_index in range(min(row_indices), max(row_indices) + 1)):
+                group_type = 2
+            if any(col_index not in col_indices for col_index in range(min(col_indices), max(col_indices) + 1)):
+                if group_type == 2:
+                    group_type = 3
+                else:
+                    group_type = 1
+
+            if group_type == 0:
+                groupings.append([i, 0, 0, int(min(group_indices)[0]), int(min(group_indices)[1]), len(row_indices), len(col_indices), layer_idx])
+            elif group_type == 1:
+                groupings.append([i, 1, 0, int(min(group_indices)[0]), int(min(group_indices)[1]), len(row_indices), len(col_indices)/2, layer_idx])
+                groupings.append([i, 1, 1, int(min(group_indices)[0]), int(max(group_indices)[1]), len(row_indices), len(col_indices)/2, layer_idx])
+            elif group_type == 2:
+                groupings.append([i, 2, 0, int(min(group_indices)[0]), int(min(group_indices)[1]), len(row_indices) / 2, len(col_indices), layer_idx])
+                groupings.append([i, 2, 1, int(max(group_indices)[0]), int(min(group_indices)[1]), len(row_indices) / 2, len(col_indices), layer_idx])
+            elif group_type == 3:
+                groupings.append([i, 3, 3, int(min(group_indices)[0]), int(min(group_indices)[1]), 1, 1, layer_idx])
+                groupings.append([i, 3, 2, int(min(row_indices)), int(max(col_indices)), 1, 1, layer_idx])
+                groupings.append([i, 3, 1, int(max(row_indices)), int(min(col_indices)), 1, 1, layer_idx])
+                groupings.append([i, 3, 0, int(max(group_indices)[0]), int(max(group_indices)[1]), 1, 1, layer_idx])
+
+    return groupings
+
+
+def tutorial_solve(num_var: int, terms: list[int], dont_cares: list[int], form_terms: str = "min"):
+    if form_terms == "min":
+        if len(terms) == 0:
+            return {"expression": "0", "groupings": []}
+        if len(terms) + len(dont_cares) >= 2**num_var:
+            return {"expression": "1", "groupings": []}
+    else:
+        if len(terms) == 0:
+            return {"expression": "1", "groupings": []}
+        if len(terms) + len(dont_cares) >= 2**num_var:
+            return {"expression": "0", "groupings": []}
+
+    prime_implicants = getPrimeImplicants(num_var=num_var, terms=terms, dont_cares=dont_cares, form_terms=form_terms)
+    minimal_expressions = minimizePrimeImplicants(num_var=num_var, terms=terms, prime_implicants=prime_implicants, form_terms=form_terms)
+
+    if len(minimal_expressions) == 0:
+        return {"expression": "", "groupings": []}
+
+    chosen_expression = minimal_expressions[0]
+    expression_str = stringifyExpression(expression=chosen_expression, form_answer=form_terms)
+
+    literal_sets = [set(expr) for expr in chosen_expression]
+    implicants_by_literals = {frozenset(_implicant_to_literal_set(num_var, pi, form_terms)): pi for pi in prime_implicants}
+
+    chosen_implicants = []
+    for lit_set in literal_sets:
+        pi = implicants_by_literals.get(frozenset(lit_set))
+        if pi:
+            chosen_implicants.append(pi)
+
+    groups = []
+    for pi in chosen_implicants:
+        covered = set()
+        for i in range(2**num_var):
+            bits = bin(i).lstrip("0b").rjust(num_var, "0")
+            if all(p == "-" or p == b for p, b in zip(pi, bits)):
+                covered.add(i)
+        if len(covered) > 0:
+            groups.append(covered)
+
+    groupings = _groups_to_groupings(num_var, groups)
+    return {"expression": expression_str, "groupings": groupings}
+
+
 
 def getPrimeImplicants(num_var: int, 
                        terms: list[int], 

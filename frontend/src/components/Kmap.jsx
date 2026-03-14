@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true}) => {
+const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true, cellValues, onToggleCell}) => {
 
     const sizeMap = {
         5: "grid grid-cols-2 gap-4",
@@ -91,7 +91,7 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGro
             ? "text-sm sm:text-lg md:text-xl"
             : "text-base sm:text-xl md:text-2xl";
 
-    const generateValueMatrix = ( dont_cares, form, num_var, terms ) => {
+    const generateValueMatrix = ( dont_cares, form, num_var, terms, offset = 0 ) => {
         const components = [];
         const newForm = [];
         const newDontCares = [];
@@ -117,12 +117,20 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGro
         }
 
         for (let i = 0; i < Math.min(2 ** num_var, 16); i++) {
-            const val = newDontCares.includes(i) ? "x" : newForm.includes(i) ? mainVal : otherVal;
+            const absoluteIndex = offset + i;
+            let val;
+            if (cellValues && typeof cellValues[absoluteIndex] !== "undefined") {
+                const v = cellValues[absoluteIndex];
+                val = v === "x" ? "x" : v === 1 ? "1" : "0";
+            } else {
+                val = newDontCares.includes(i) ? "x" : newForm.includes(i) ? mainVal : otherVal;
+            }
 
             components.push(
             <div 
                 key={i} 
-                className="border-2 border-slate-600 aspect-square bg-slate-800/50 backdrop-blur-sm rounded-md sm:rounded-lg flex justify-center items-center shadow-lg hover:bg-slate-700/50 hover:border-slate-500 transition-all duration-200"
+                className={`border-2 border-slate-600 aspect-square bg-slate-800/50 backdrop-blur-sm rounded-md sm:rounded-lg flex justify-center items-center shadow-lg hover:bg-slate-700/50 hover:border-slate-500 transition-all duration-200 ${onToggleCell ? "cursor-pointer select-none" : ""}`}
+                onClick={onToggleCell ? () => onToggleCell(absoluteIndex) : undefined}
             >
                 <span className={`font-bold ${cellSizeClass} ${val === "1" ? "text-cyan-300" : val === "0" ? "text-slate-300" : "text-amber-100"}`}>
                     {val}
@@ -208,7 +216,8 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGro
                                 dont_cares.filter(value => value >= (16 * layeridx) && value < (16 * layeridx + 16)),
                                 form,
                                 num_var,
-                                terms.filter(value => value >= (16 * layeridx) && value < (16 * layeridx + 16))
+                                terms.filter(value => value >= (16 * layeridx) && value < (16 * layeridx + 16)),
+                                16 * layeridx
                             )}
                             { (globalState === 'show') &&
                             <div className={`absolute inset-0 pointer-events-none grid ${generateInnerMatrix[num_var] ?? generateInnerMatrix[4]} gap-2 sm:gap-3`}>

@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     CheckUser, CheckAnswer, FinishTimedChallenge, GetDailyChallenge, 
     GetDailyChallengeLeaderboard, StartTimeAttack, CheckTimeAttackAnswer, 
-    FinishTimeAttack, GetTimeAttackLeaderboard
+    FinishTimeAttack, GetTimeAttackLeaderboard, TutorialSolve
 )
 
 urlpatterns = [
@@ -15,4 +15,5 @@ urlpatterns = [
     path('check-time-attack', CheckTimeAttackAnswer.as_view(), name='check-time-attack'),
     path('finish-time-attack', FinishTimeAttack.as_view(), name='finish-time-attack'),
     path('time-attack-leaderboard', GetTimeAttackLeaderboard.as_view(), name='get-time-attack-leaderboard'),
+    path('tutorial-solve', TutorialSolve.as_view(), name='tutorial-solve'),
 ]

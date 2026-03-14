@@ -16,7 +16,8 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
             { value: 'easy', label: 'Easy', color: 'emerald', description: '2-3 variables' },
             { value: 'medium', label: 'Medium', color: 'cyan', description: '3-4 variables' },
             { value: 'hard', label: 'Hard', color: 'amber', description: '5-6 variables' },
-            { value: 'progressive', label: 'Progressive', color: 'purple', description: 'Adaptive difficulty' }
+            { value: 'progressive', label: 'Progressive', color: 'purple', description: 'Adaptive difficulty' },
+            { value: 'tutorial', label: 'Tutorial', color: 'blue', description: 'Interactive K‑Map builder' }
         ],
         timeAttack: [
             { value: 'timed', label: 'Timed Challenge', color: 'rose', description: 'Daily Timed Challenge!' },
@@ -35,6 +36,7 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
             hard: 'from-amber-600 to-orange-600 border-amber-500/50',
             timed: 'from-rose-600 to-pink-600 border-rose-500/50',
             progressive: 'from-purple-600 to-pink-600 border-purple-500/50',
+            tutorial: 'from-blue-600 to-indigo-600 border-blue-500/50',
             'time-attack-easy': 'from-blue-600 to-cyan-600 border-blue-500/50',
             'time-attack-medium': 'from-indigo-600 to-blue-600 border-indigo-500/50',
             'time-attack-hard': 'from-violet-600 to-purple-600 border-violet-500/50'
@@ -45,6 +47,21 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
 
     const createUser = async (username, difficulty) => {
         try {
+            if (difficulty === 'tutorial') {
+                const tutorialState = {
+                    is_tutorial: true,
+                    q_num_var: 4,
+                    q_form: 'min',
+                    q_terms: [],
+                    q_dont_cares: [],
+                    q_groupings: [],
+                    tutorial_cells: Array(16).fill(0),
+                    tutorial_expression: '',
+                };
+                setGlobalName(username);
+                setGameState(tutorialState);
+                return tutorialState;
+            }
             setIsMapLoading(true);
             // Map difficulty values
             let difficultyValue = difficulty;
