@@ -20,7 +20,6 @@ function App() {
 
   useEffect(() => {
     if (!gameState) return;
-    if (gameState?.is_tutorial) return;
     if (!prevGameState.current) {
       prevGameState.current = gameState;
       setSlideDir('in');
@@ -110,40 +109,18 @@ function App() {
                 terms={gameState.q_terms}
                 groupings={gameState.q_groupings}
                 globalState={globalState}
-                showGroupings={gameState?.is_tutorial ? true : (gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect)}
+                showGroupings={gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect}
+                forceGroupings={gameState?.is_tutorial || false}
                 cellValues={gameState?.is_tutorial ? gameState.tutorial_cells : undefined}
                 onToggleCell={gameState?.is_tutorial ? (index => {
-                  const outerRows = ["00", "01", "11", "10"];
-                  const outerCols = ["00", "01", "11", "10"];
-                  const row = Math.floor(index / 4);
-                  const col = index % 4;
-                  const termValue = parseInt(`${outerRows[row]}${outerCols[col]}`, 2);
-
                   const nextCells = [...gameState.tutorial_cells];
                   const current = nextCells[index];
                   const nextVal = current === 0 ? 1 : current === 1 ? "x" : 0;
                   nextCells[index] = nextVal;
 
-                  const terms = [];
-                  const dontCares = [];
-                  for (let i = 0; i < nextCells.length; i += 1) {
-                    const r = Math.floor(i / 4);
-                    const c = i % 4;
-                    const mapped = parseInt(`${outerRows[r]}${outerCols[c]}`, 2);
-                    if (nextCells[i] === "x") {
-                      dontCares.push(mapped);
-                    } else if (gameState.q_form === "min" && nextCells[i] === 1) {
-                      terms.push(mapped);
-                    } else if (gameState.q_form === "max" && nextCells[i] === 0) {
-                      terms.push(mapped);
-                    }
-                  }
-
                   setGameState({
                     ...gameState,
                     tutorial_cells: nextCells,
-                    q_terms: terms,
-                    q_dont_cares: dontCares,
                   });
                 }) : undefined}
               />

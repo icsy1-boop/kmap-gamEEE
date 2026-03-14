@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true, cellValues, onToggleCell}) => {
+const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true, cellValues, onToggleCell, forceGroupings = false}) => {
 
     const sizeMap = {
         5: "grid grid-cols-2 gap-4",
@@ -219,7 +219,7 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGro
                                 terms.filter(value => value >= (16 * layeridx) && value < (16 * layeridx + 16)),
                                 16 * layeridx
                             )}
-                            { showGroupings &&
+                            { showGroupings && (globalState === 'show' || forceGroupings) &&
                             <div className={`absolute inset-0 pointer-events-none grid ${generateInnerMatrix[num_var] ?? generateInnerMatrix[4]} gap-2 sm:gap-3`}>
                                 {renderGroups(groupings.filter(group => group[7] === layeridx))}
                             </div>

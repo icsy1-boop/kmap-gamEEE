@@ -34,9 +34,14 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }
 
   useEffect(() => {
-    solve(gameState)
+    const { terms, dontCares } = deriveTermsFromCells(gameState.tutorial_cells, gameState.q_form)
+    solve({
+      ...gameState,
+      q_terms: terms,
+      q_dont_cares: dontCares,
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.q_terms, gameState.q_dont_cares, gameState.q_form])
+  }, [gameState.tutorial_cells, gameState.q_form])
 
   const deriveTermsFromCells = (cells, form) => {
     const outerRows = ["00", "01", "11", "10"]
