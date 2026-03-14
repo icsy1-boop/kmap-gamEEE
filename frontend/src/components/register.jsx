@@ -17,7 +17,7 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
             { value: 'medium', label: 'Medium', color: 'cyan', description: '3-4 variables' },
             { value: 'hard', label: 'Hard', color: 'amber', description: '5-6 variables' },
             { value: 'progressive', label: 'Progressive', color: 'purple', description: 'Adaptive difficulty' },
-            { value: 'tutorial', label: 'Tutorial', color: 'blue', description: 'Interactive K‑Map builder' }
+            { value: 'tutorial', label: 'Tutorial', color: 'blue', description: 'Sandbox K-Map' }
         ],
         timeAttack: [
             { value: 'timed', label: 'Timed Challenge', color: 'rose', description: 'Daily Timed Challenge!' },

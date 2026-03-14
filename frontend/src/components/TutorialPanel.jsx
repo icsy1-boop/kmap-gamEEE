@@ -151,12 +151,12 @@ const TutorialPanel = ({ gameState, setGameState }) => {
         <div className="mb-4 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
           <div className="text-xs uppercase tracking-wide text-slate-400">Simplified Expression</div>
           <div className="mt-2 text-cyan-200 text-sm sm:text-base break-words">
-            {gameState.tutorial_expression || '�'}
+            {gameState.tutorial_expression || '?'}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-slate-400">Click cells to toggle 0 ? 1 ? X</div>
+          <div className="text-xs text-slate-400">Click cells to toggle 0 → 1 → X</div>
           <button
             type="button"
             onClick={resetMap}

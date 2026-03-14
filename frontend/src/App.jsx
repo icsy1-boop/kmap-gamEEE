@@ -178,7 +178,7 @@ function App() {
         <div className="absolute fixed bottom-4 left-6 text-slate-400 opacity-20 z-0 select-none leading-tight">
           <div className="text-lg md:text-5xl font-bold">Kmap GamEEE</div>
           <div className="text-xs md:text-2xl">
-            by Francois Abedejos | Updated by Shaira Rodriguez | Updated by Isaac Sy
+            by Francois Abedejos | Updated by Shaira Rodriguez & Isaac Sy
           </div>
         </div>
       </div>
