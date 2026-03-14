@@ -1163,8 +1163,8 @@ class TutorialSolve(APIView):
         terms = request.data.get('terms', [])
         dont_cares = request.data.get('dont_cares', [])
 
-        if num_var != 4:
-            return Response({'error': 'Tutorial supports only 4 variables'}, status=status.HTTP_400_BAD_REQUEST)
+        if num_var not in [2, 3, 4]:
+            return Response({'error': 'Tutorial supports only 2 to 4 variables'}, status=status.HTTP_400_BAD_REQUEST)
 
         if form_terms not in ['min', 'max']:
             return Response({'error': 'Invalid form_terms'}, status=status.HTTP_400_BAD_REQUEST)

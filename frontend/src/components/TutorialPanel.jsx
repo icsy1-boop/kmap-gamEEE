@@ -8,7 +8,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          num_var: 4,
+          num_var: nextState.q_num_var,
           form_terms: nextState.q_form,
           terms: nextState.q_terms,
           dont_cares: nextState.q_dont_cares,
@@ -33,24 +33,18 @@ const TutorialPanel = ({ gameState, setGameState }) => {
     }
   }
 
-  useEffect(() => {
-    const { terms, dontCares } = deriveTermsFromCells(gameState.tutorial_cells, gameState.q_form)
-    solve({
-      ...gameState,
-      q_terms: terms,
-      q_dont_cares: dontCares,
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.tutorial_cells, gameState.q_form])
-
-  const deriveTermsFromCells = (cells, form) => {
-    const outerRows = ["00", "01", "11", "10"]
-    const outerCols = ["00", "01", "11", "10"]
+  const deriveTermsFromCells = (cells, form, numVar) => {
+    const twos = ["0", "1"]
+    const fours = ["00", "01", "11", "10"]
+    const outerRows = numVar === 4 ? fours : twos
+    const outerCols = numVar === 2 ? twos : fours
+    const rowCount = outerRows.length
+    const colCount = outerCols.length
     const terms = []
     const dontCares = []
     for (let i = 0; i < cells.length; i += 1) {
-      const row = Math.floor(i / 4)
-      const col = i % 4
+      const row = Math.floor(i / colCount)
+      const col = i % colCount
       const mapped = parseInt(`${outerRows[row]}${outerCols[col]}`, 2)
       if (cells[i] === 'x') {
         dontCares.push(mapped)
@@ -63,9 +57,27 @@ const TutorialPanel = ({ gameState, setGameState }) => {
     return { terms, dontCares }
   }
 
+  useEffect(() => {
+    const { terms, dontCares } = deriveTermsFromCells(
+      gameState.tutorial_cells,
+      gameState.q_form,
+      gameState.q_num_var,
+    )
+    solve({
+      ...gameState,
+      q_terms: terms,
+      q_dont_cares: dontCares,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.tutorial_cells, gameState.q_form, gameState.q_num_var])
+
   const toggleForm = () => {
     const nextForm = gameState.q_form === 'min' ? 'max' : 'min'
-    const { terms, dontCares } = deriveTermsFromCells(gameState.tutorial_cells, nextForm)
+    const { terms, dontCares } = deriveTermsFromCells(
+      gameState.tutorial_cells,
+      nextForm,
+      gameState.q_num_var,
+    )
     const nextState = {
       ...gameState,
       q_form: nextForm,
@@ -76,7 +88,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }
 
   const resetMap = () => {
-    const nextCells = Array(16).fill(0)
+    const nextCells = Array(2 ** gameState.q_num_var).fill(0)
     const nextState = {
       ...gameState,
       tutorial_cells: nextCells,
@@ -87,13 +99,28 @@ const TutorialPanel = ({ gameState, setGameState }) => {
     solve(nextState)
   }
 
+  const setVariables = (numVar) => {
+    const nextCells = Array(2 ** numVar).fill(0)
+    const nextState = {
+      ...gameState,
+      q_num_var: numVar,
+      q_form: 'min',
+      tutorial_cells: nextCells,
+      q_terms: [],
+      q_dont_cares: [],
+      q_groupings: [],
+      tutorial_expression: '',
+    }
+    solve(nextState)
+  }
+
   return (
     <div className="w-full max-w-md card-fade-in mb-10">
       <div className="w-full p-5 sm:p-8 md:p-10 from-slate-800 via-slate-900 to-slate-800 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-cyan-500/95">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
             <div className="text-sm text-slate-400">Tutorial Mode</div>
-            <div className="text-lg font-bold text-cyan-300">4‑Variable K‑Map</div>
+            <div className="text-lg font-bold text-cyan-300">{gameState.q_num_var}-Variable K-Map</div>
           </div>
           <button
             type="button"
@@ -104,15 +131,32 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           </button>
         </div>
 
+        <div className="mb-4 flex items-center gap-2">
+          {[2, 3, 4].map((numVar) => (
+            <button
+              key={numVar}
+              type="button"
+              onClick={() => setVariables(numVar)}
+              className={`px-3 py-1.5 rounded-lg border text-sm transition ${
+                gameState.q_num_var === numVar
+                  ? 'border-cyan-400 text-cyan-200 bg-cyan-900/30'
+                  : 'border-slate-600 text-slate-300 hover:bg-slate-800/60'
+              }`}
+            >
+              {numVar} Vars
+            </button>
+          ))}
+        </div>
+
         <div className="mb-4 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
           <div className="text-xs uppercase tracking-wide text-slate-400">Simplified Expression</div>
           <div className="mt-2 text-cyan-200 text-sm sm:text-base break-words">
-            {gameState.tutorial_expression || '—'}
+            {gameState.tutorial_expression || '�'}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-slate-400">Click cells to toggle 0 → 1 → X</div>
+          <div className="text-xs text-slate-400">Click cells to toggle 0 ? 1 ? X</div>
           <button
             type="button"
             onClick={resetMap}
