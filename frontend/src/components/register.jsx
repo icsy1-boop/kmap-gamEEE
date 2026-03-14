@@ -7,6 +7,7 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
     const [difficulty, setDifficulty] = useState('medium')
     const [expandedSection, setExpandedSection] = useState('practice')
     const [submitError, setSubmitError] = useState('')
+    const [allowDontCares, setAllowDontCares] = useState(true)
     const blockClipboard = (e) => e.preventDefault();
 
     // Organize difficulties by category
@@ -68,7 +69,7 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
             
             const payload = difficultyValue.startsWith('time-attack') 
                 ? { username, difficulty: timeAttackDifficultyMap[difficultyValue], is_time_attack: true }
-                : { username, difficulty };
+                : { username, difficulty, allow_dont_cares: allowDontCares };
             
             const response = await fetch(apiEndpoint, {
                 method: "POST",
@@ -86,6 +87,9 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
             if (difficultyValue.startsWith('time-attack')) {
                 data.is_time_attack = true;
                 data.difficulty_name = difficultyValue;
+            }
+            if (!difficultyValue.startsWith('time-attack')) {
+                data.allow_dont_cares = allowDontCares;
             }
             
             setGlobalName(username);
@@ -225,6 +229,27 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
                             </div>
                         )}
                     </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-cyan-500/30 bg-slate-900/50 px-4 py-3">
+                    <div>
+                        <div className="text-sm font-semibold text-cyan-300">Don't Cares</div>
+                        <div className="text-xs text-slate-400">Include X terms in questions</div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setAllowDontCares(v => !v)}
+                        className={`relative h-7 w-12 rounded-full transition ${
+                            allowDontCares ? 'bg-cyan-500/70' : 'bg-slate-700'
+                        }`}
+                        aria-pressed={allowDontCares}
+                    >
+                        <span
+                            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
+                                allowDontCares ? 'left-6' : 'left-0.5'
+                            }`}
+                        />
+                    </button>
                 </div>
 
                 <button

@@ -633,6 +633,14 @@ def validate_username(username):
     return None
 
 
+def parse_allow_dont_cares(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "y", "on")
+    return bool(value)
+
+
 
 def get_or_create_daily_challenge():
     """Get today's challenge or create a new one if it doesn't exist"""
@@ -689,6 +697,8 @@ class CheckUser(APIView):
 
         score = 0
         time_started = None
+        allow_dont_cares = parse_allow_dont_cares(request.data.get('allow_dont_cares', True))
+        num_dc_override = 0 if not allow_dont_cares else None
 
         if difficulty == 4:
             daily_challenge = get_or_create_daily_challenge()
@@ -699,9 +709,9 @@ class CheckUser(APIView):
             groupings = daily_challenge.groupings
             time_started = timezone.now()
         elif difficulty == 5:
-            num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=1)
+            num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=1, num_dc_override=num_dc_override)
         else:
-            num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+            num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty, num_dc_override=num_dc_override)
         
         user = User(username=username, score=score, difficulty=difficulty, q_num_var=num_var, q_form=form, q_terms=terms, q_dont_cares=dont_cares, q_groupings=groupings, time_started=time_started)
         serializer = UserSerializer(user)
@@ -782,15 +792,17 @@ class CheckAnswer(APIView):
             difficulty = request.data.get('user').get('difficulty')
             result = request.data.get('user').get('result')
             time_started = request.data.get('user').get('time_started')
+            allow_dont_cares = parse_allow_dont_cares(request.data.get('user').get('allow_dont_cares', True))
+            num_dc_override = 0 if not allow_dont_cares else None
             
             if result == 1:
                 score += 1
                 if score >= 10 and difficulty == 5:
-                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=3)
+                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=3, num_dc_override=num_dc_override)
                 elif score >= 5 and difficulty == 5:
-                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=2)
+                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=2, num_dc_override=num_dc_override)
                 elif difficulty == 5:
-                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=1)
+                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=1, num_dc_override=num_dc_override)
                 elif difficulty == 4:
                     # Timed mode: stay on the daily challenge, don't change questions
                     daily_challenge = get_or_create_daily_challenge()
@@ -800,11 +812,11 @@ class CheckAnswer(APIView):
                     dont_cares = daily_challenge.dont_cares
                     groupings = daily_challenge.groupings
                 else:
-                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty, num_dc_override=num_dc_override)
             else:
                 score = 0
                 if difficulty == 5:
-                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=1)
+                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=1, num_dc_override=num_dc_override)
                 elif difficulty == 4:
                     # Timed mode: stay on the daily challenge, don't change questions
                     daily_challenge = get_or_create_daily_challenge()
@@ -814,7 +826,7 @@ class CheckAnswer(APIView):
                     dont_cares = daily_challenge.dont_cares
                     groupings = daily_challenge.groupings
                 else:
-                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+                    num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty, num_dc_override=num_dc_override)
             
             user = User(username=username, score=score, difficulty=difficulty, q_num_var=num_var, q_form=form, q_terms=terms, q_dont_cares=dont_cares, q_groupings=groupings, time_started=time_started)
             serializer = UserSerializer(user)
@@ -1006,6 +1018,8 @@ class StartTimeAttack(APIView):
     def post(self, request):
         username = request.data.get('username')
         difficulty = request.data.get('difficulty')
+        allow_dont_cares = True
+        num_dc_override = None
         
         username_error = validate_username(username)
         if username_error:
@@ -1015,7 +1029,7 @@ class StartTimeAttack(APIView):
             return Response({'error': 'Invalid username or difficulty'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Generate first question
-        num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+        num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty, num_dc_override=num_dc_override)
         
         return Response({
             'username': username,
@@ -1026,7 +1040,8 @@ class StartTimeAttack(APIView):
             'q_form': form,
             'q_terms': terms,
             'q_dont_cares': dont_cares,
-            'q_groupings': groupings
+            'q_groupings': groupings,
+            'allow_dont_cares': allow_dont_cares
         }, status=status.HTTP_200_OK)
 
 
@@ -1036,6 +1051,8 @@ class CheckTimeAttackAnswer(APIView):
         difficulty = request.data.get('difficulty')
         questions_solved = request.data.get('questions_solved', 0)
         time_remaining = request.data.get('time_remaining', 0)
+        allow_dont_cares = True
+        num_dc_override = None
         
         num_var = request.data.get('q_num_var')
         form = request.data.get('q_form')
@@ -1064,7 +1081,7 @@ class CheckTimeAttackAnswer(APIView):
         questions_solved += 1
         
         # Generate next question
-        num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty)
+        num_var, form, terms, dont_cares, groupings = kmap_solver.randomizeQuestion(difficulty=difficulty, num_dc_override=num_dc_override)
         
         return Response({
             'result': 1,

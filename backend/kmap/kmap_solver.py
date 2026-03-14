@@ -17,7 +17,7 @@ else:
     import kmap.group_generator as gg
     
 
-def randomizeQuestion(difficulty: int) -> tuple[int, str, list[int], list[int]]:
+def randomizeQuestion(difficulty: int, num_dc_override: int | None = None) -> tuple[int, str, list[int], list[int]]:
     
     """
     Generates a random question by giving a list of minterms/maxterms and don't cares.
@@ -35,6 +35,8 @@ def randomizeQuestion(difficulty: int) -> tuple[int, str, list[int], list[int]]:
     
     :param difficulty: Difficulty of question to be generated. Possible values: 1 = easy, 2 = medium, 3 = hard, 4 = random.
     :type difficulty: int
+    :param num_dc_override: Override for number of don't cares. Use 0 to disable don't cares.
+    :type num_dc_override: int | None
 
     :rtype: tuple[ num_var, form, terms, dont_cares ]
     :returns: `randomizeQuestion()` returns a tuple of the following arguments needed for `getPrimeImplicants()` and `minimizePrimeImplicants()`.
@@ -62,6 +64,8 @@ def randomizeQuestion(difficulty: int) -> tuple[int, str, list[int], list[int]]:
         form = npr.choice(["min", "max"], p = [0.7, 0.3])
         # set dont cares
         num_dc = 0
+        if num_dc_override is not None:
+            num_dc = max(0, min(int(num_dc_override), (2**num_var) - 1))
         dc_in = 0
         dc_out = num_dc - dc_in
         s_o_probs = [0.5, 0.5]
@@ -79,6 +83,8 @@ def randomizeQuestion(difficulty: int) -> tuple[int, str, list[int], list[int]]:
         form = npr.choice(["min", "max"], p = [0.5, 0.5])
         # set dont cares
         num_dc = random.randint(0, 6)
+        if num_dc_override is not None:
+            num_dc = max(0, min(int(num_dc_override), (2**num_var) - 1))
         dc_in = num_dc
         dc_out = num_dc - dc_in
         s_o_probs = [0.5, 0.5]
@@ -96,6 +102,8 @@ def randomizeQuestion(difficulty: int) -> tuple[int, str, list[int], list[int]]:
         form = npr.choice(["min", "max"], p = [0.6, 0.4])
         # set dont cares
         num_dc = random.randint(1, 10)
+        if num_dc_override is not None:
+            num_dc = max(0, min(int(num_dc_override), (2**num_var) - 1))
         dc_in = random.randint(0, num_dc)
         dc_out = num_dc - dc_in
         s_o_probs = [0.5, 0.5]
@@ -105,6 +113,8 @@ def randomizeQuestion(difficulty: int) -> tuple[int, str, list[int], list[int]]:
         num_var = random.randint(4, 6)
         terms = sorted(npr.choice(range(2**num_var), size=random.randint(int((2**num_var)/8), int((2**num_var)/2)), replace=False).tolist())
         num_dc = random.randint(0, 3)
+        if num_dc_override is not None:
+            num_dc = max(0, min(int(num_dc_override), (2**num_var) - 1))
         if num_dc != 0:
             dont_cares = sorted(npr.choice(terms, size=min(num_dc, len(terms)-1), replace=False).tolist())
             for dc in dont_cares:
