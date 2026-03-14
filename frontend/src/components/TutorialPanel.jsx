@@ -39,15 +39,20 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }, [gameState.q_terms, gameState.q_dont_cares, gameState.q_form])
 
   const deriveTermsFromCells = (cells, form) => {
+    const outerRows = ["00", "01", "11", "10"]
+    const outerCols = ["00", "01", "11", "10"]
     const terms = []
     const dontCares = []
     for (let i = 0; i < cells.length; i += 1) {
+      const row = Math.floor(i / 4)
+      const col = i % 4
+      const mapped = parseInt(`${outerRows[row]}${outerCols[col]}`, 2)
       if (cells[i] === 'x') {
-        dontCares.push(i)
+        dontCares.push(mapped)
       } else if (form === 'min' && cells[i] === 1) {
-        terms.push(i)
+        terms.push(mapped)
       } else if (form === 'max' && cells[i] === 0) {
-        terms.push(i)
+        terms.push(mapped)
       }
     }
     return { terms, dontCares }

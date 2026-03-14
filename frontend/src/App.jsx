@@ -20,6 +20,7 @@ function App() {
 
   useEffect(() => {
     if (!gameState) return;
+    if (gameState?.is_tutorial) return;
     if (!prevGameState.current) {
       prevGameState.current = gameState;
       setSlideDir('in');
@@ -100,7 +101,7 @@ function App() {
             
             <div
               key={mapKey}
-              className={`flex-none relative ${slideDir === 'in' ? 'kmap-slide-in' : 'kmap-slide-out'}`}
+              className={`flex-none relative ${gameState?.is_tutorial ? '' : (slideDir === 'in' ? 'kmap-slide-in' : 'kmap-slide-out')}`}
             >
               <Kmap
                 dont_cares={gameState.q_dont_cares}
@@ -112,6 +113,12 @@ function App() {
                 showGroupings={gameState?.is_tutorial ? true : (gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect)}
                 cellValues={gameState?.is_tutorial ? gameState.tutorial_cells : undefined}
                 onToggleCell={gameState?.is_tutorial ? (index => {
+                  const outerRows = ["00", "01", "11", "10"];
+                  const outerCols = ["00", "01", "11", "10"];
+                  const row = Math.floor(index / 4);
+                  const col = index % 4;
+                  const termValue = parseInt(`${outerRows[row]}${outerCols[col]}`, 2);
+
                   const nextCells = [...gameState.tutorial_cells];
                   const current = nextCells[index];
                   const nextVal = current === 0 ? 1 : current === 1 ? "x" : 0;
@@ -120,12 +127,15 @@ function App() {
                   const terms = [];
                   const dontCares = [];
                   for (let i = 0; i < nextCells.length; i += 1) {
+                    const r = Math.floor(i / 4);
+                    const c = i % 4;
+                    const mapped = parseInt(`${outerRows[r]}${outerCols[c]}`, 2);
                     if (nextCells[i] === "x") {
-                      dontCares.push(i);
+                      dontCares.push(mapped);
                     } else if (gameState.q_form === "min" && nextCells[i] === 1) {
-                      terms.push(i);
+                      terms.push(mapped);
                     } else if (gameState.q_form === "max" && nextCells[i] === 0) {
-                      terms.push(i);
+                      terms.push(mapped);
                     }
                   }
 
