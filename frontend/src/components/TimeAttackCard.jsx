@@ -5,7 +5,7 @@ import { apiUrl } from '../config/api';
 const TIME_LIMIT = 30;
 
 
-const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState, setIsMapLoading }) => {
+const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState, setIsMapLoading, isMapLoading }) => {
     const [answer, setAnswer] = useState('');
     const [errorS, setErrorS] = useState(false);
     const [response, setResponse] = useState(null);
@@ -316,10 +316,15 @@ const TimeAttackCard = ({ gameState, setGlobalState, globalState, setGameState, 
 
                 <button
                     type="button"
-                    onClick={checkAnswer}
+                    onClick={() => {
+                        if (isMapLoading) return;
+                        checkAnswer();
+                    }}
+                    disabled={isMapLoading}
                     className={`w-full px-6 sm:px-8 py-3 sm:py-4 font-bold text-sm sm:text-base md:text-lg
                         rounded-xl shadow-lg transition-all duration-200 transform
                         hover:scale-[1.02] active:scale-[0.98] border text-white
+                        ${isMapLoading ? "opacity-60 cursor-not-allowed" : ""}
                         bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 shadow-violet-500/30 hover:shadow-violet-500/50
                         `}
                 >

@@ -75,6 +75,15 @@ function App() {
           </button>
         )}
 
+        {globalName === '' && isMapLoading && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
+            <div className="flex items-center gap-3 text-cyan-200">
+              <div className="h-6 w-6 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
+              <span className="text-base sm:text-lg font-semibold">Generating K‑Map…</span>
+            </div>
+          </div>
+        )}
+
         {globalName === '' ? (
           <Register
             globalName={globalName}
@@ -123,6 +132,7 @@ function App() {
                   globalState={globalState}
                   setGameState={setGameState}
                   setIsMapLoading={setIsMapLoading}
+                  isMapLoading={isMapLoading}
                 />
               ) : (
                 <AnswerCard
@@ -132,6 +142,7 @@ function App() {
                   setGameState={setGameState}
                   setIsLastAnswerCorrect={setIsLastAnswerCorrect}
                   setIsMapLoading={setIsMapLoading}
+                  isMapLoading={isMapLoading}
                 />
               )}
             </div>

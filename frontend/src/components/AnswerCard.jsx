@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { apiUrl } from '../config/api';
 
-const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState, setIsLastAnswerCorrect, setIsMapLoading }) => {
+const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameState, setIsLastAnswerCorrect, setIsMapLoading, isMapLoading }) => {
     const [answer, setAnswer] = useState('');
     const [errorS, setErrorS] = useState(false);
     const [response, setResponse] = useState(null);
@@ -327,6 +327,7 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
                 <button
                     type="button"
                     onClick={() => {
+                        if (isMapLoading) return;
                         console.log("Button clicked. difficulty:", gameState.difficulty, "globalState:", globalState, "isCorrect:", isCorrect);
                         // For timed mode, only allow finishing if answer was correct
                         if (gameState.difficulty === 4 && globalState === "show" && isCorrect) {
@@ -337,9 +338,11 @@ const AnswerCard = ({ onSubmit, gameState, setGlobalState, globalState, setGameS
                             handleSubmit();
                         }
                     }}
+                    disabled={isMapLoading}
                     className={`w-full px-6 sm:px-8 py-3 sm:py-4 font-bold text-sm sm:text-base md:text-lg
                         rounded-xl shadow-lg transition-all duration-200 transform
                         hover:scale-[1.02] active:scale-[0.98] border text-white
+                        ${isMapLoading ? "opacity-60 cursor-not-allowed" : ""}
                         ${gameState.difficulty === 4 && globalState === "show" && isCorrect
                             ? "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 shadow-rose-500/30 hover:shadow-rose-500/50"
                             : globalState === "hide"
