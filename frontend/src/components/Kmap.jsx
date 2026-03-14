@@ -219,7 +219,7 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGro
                                 terms.filter(value => value >= (16 * layeridx) && value < (16 * layeridx + 16)),
                                 16 * layeridx
                             )}
-                            { (globalState === 'show') &&
+                            { showGroupings &&
                             <div className={`absolute inset-0 pointer-events-none grid ${generateInnerMatrix[num_var] ?? generateInnerMatrix[4]} gap-2 sm:gap-3`}>
                                 {renderGroups(groupings.filter(group => group[7] === layeridx))}
                             </div>

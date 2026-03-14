@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react'
 import { apiUrl } from '../config/api'
 
-const TutorialPanel = ({ gameState, setGameState, setIsMapLoading }) => {
+const TutorialPanel = ({ gameState, setGameState }) => {
   const solve = async (nextState) => {
     try {
-      setIsMapLoading(true)
       const response = await fetch(apiUrl('/tutorial-solve'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,7 +30,6 @@ const TutorialPanel = ({ gameState, setGameState, setIsMapLoading }) => {
         tutorial_expression: '',
       })
     } finally {
-      setIsMapLoading(false)
     }
   }
 

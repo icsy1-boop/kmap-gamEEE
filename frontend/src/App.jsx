@@ -137,7 +137,7 @@ function App() {
                   });
                 }) : undefined}
               />
-              {isMapLoading && (
+              {isMapLoading && !gameState?.is_tutorial && (
                 <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-slate-900/70 backdrop-blur-sm">
                   <div className="flex items-center gap-3 text-cyan-200">
                     <div className="h-5 w-5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
@@ -156,7 +156,6 @@ function App() {
                 <TutorialPanel
                   gameState={gameState}
                   setGameState={setGameState}
-                  setIsMapLoading={setIsMapLoading}
                 />
               ) : gameState?.is_time_attack ? (
                 <TimeAttackCard
