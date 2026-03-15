@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { apiUrl } from '../config/api'
 
 const COLORS = [
@@ -17,7 +17,19 @@ const COLORS = [
 ]
 
 const TutorialPanel = ({ gameState, setGameState }) => {
+  const requestIdRef = useRef(0)
+  const abortRef = useRef(null)
+
   const solve = async (nextState) => {
+    const requestId = requestIdRef.current + 1
+    requestIdRef.current = requestId
+
+    if (abortRef.current) {
+      abortRef.current.abort()
+    }
+    const controller = new AbortController()
+    abortRef.current = controller
+
     try {
       setGameState((prev) => ({
         ...prev,
@@ -28,6 +40,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
       const response = await fetch(apiUrl('/tutorial-solve'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           num_var: nextState.q_num_var,
           form_terms: nextState.q_form,
@@ -35,10 +48,15 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           dont_cares: nextState.q_dont_cares,
         }),
       })
+
       const data = await response.json()
+      if (requestId !== requestIdRef.current) {
+        return
+      }
       if (!response.ok) {
         throw new Error(data.error || 'Failed to solve tutorial')
       }
+
       setGameState({
         ...nextState,
         q_groupings: data.groupings || [],
@@ -47,6 +65,12 @@ const TutorialPanel = ({ gameState, setGameState }) => {
         tutorial_busy: false,
       })
     } catch (error) {
+      if (error && error.name === 'AbortError') {
+        return
+      }
+      if (requestId !== requestIdRef.current) {
+        return
+      }
       setGameState({
         ...nextState,
         q_groupings: [],
@@ -110,6 +134,9 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }, [gameState.tutorial_cells, gameState.q_form, gameState.q_num_var])
 
   const toggleForm = () => {
+    if (gameState.tutorial_busy) {
+      return
+    }
     const nextForm = gameState.q_form === 'min' ? 'max' : 'min'
     const { terms, dontCares } = deriveTermsFromCells(
       gameState.tutorial_cells,
@@ -126,6 +153,9 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }
 
   const resetMap = () => {
+    if (gameState.tutorial_busy) {
+      return
+    }
     const nextCells = Array(2 ** gameState.q_num_var).fill(0)
     const nextState = {
       ...gameState,
@@ -169,21 +199,22 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           <div className="flex flex-col items-end gap-1">
             <div className="text-[10px] uppercase tracking-wide text-slate-400">Toggle SOP/POS</div>
             <button
-            type="button"
-            onClick={toggleForm}
-            className={`relative h-8 w-16 rounded-full border transition ${
-              gameState.q_form === 'min'
-                ? 'border-cyan-400 bg-cyan-900/30'
-                : 'border-rose-400 bg-rose-900/30'
-            }`}
-            aria-pressed={gameState.q_form === 'min'}
-          >
-            <span
-              className={`absolute top-0.5 h-7 w-7 rounded-full bg-white shadow transition ${
-                gameState.q_form === 'min' ? 'left-0.5' : 'left-8'
-              }`}
-            />
-            <span className="sr-only">Toggle SOP/POS</span>
+              type="button"
+              onClick={toggleForm}
+              disabled={gameState.tutorial_busy}
+              className={`relative h-8 w-16 rounded-full border transition ${
+                gameState.q_form === 'min'
+                  ? 'border-cyan-400 bg-cyan-900/30'
+                  : 'border-rose-400 bg-rose-900/30'
+              } ${gameState.tutorial_busy ? 'opacity-60 cursor-not-allowed' : ''}`}
+              aria-pressed={gameState.q_form === 'min'}
+            >
+              <span
+                className={`absolute top-0.5 h-7 w-7 rounded-full bg-white shadow transition ${
+                  gameState.q_form === 'min' ? 'left-0.5' : 'left-8'
+                }`}
+              />
+              <span className="sr-only">Toggle SOP/POS</span>
             </button>
           </div>
         </div>
@@ -229,17 +260,20 @@ const TutorialPanel = ({ gameState, setGameState }) => {
                 ))}
               </div>
             ) : (
-              <span className="text-cyan-200">{gameState.tutorial_expression || '-'} </span>
+              <span className="text-cyan-200">{gameState.tutorial_expression || '-'}</span>
             )}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-slate-400">Click cells to toggle 0 - 1 - X</div>
+          <div className="text-xs text-slate-400">Click cells to toggle 0 -> 1 -> X</div>
           <button
             type="button"
             onClick={resetMap}
-            className="px-3 py-1.5 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800/60 transition"
+            disabled={gameState.tutorial_busy}
+            className={`px-3 py-1.5 rounded-lg border border-slate-600 text-slate-200 transition ${
+              gameState.tutorial_busy ? 'opacity-60 cursor-not-allowed' : 'hover:bg-slate-800/60'
+            }`}
           >
             Reset
           </button>
@@ -248,7 +282,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
         <div className="mt-5 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
           <div className="text-xs uppercase tracking-wide text-slate-400">Di ka nakinig sa lecture noh?</div>
           <div className="mt-2 text-sm text-slate-300 leading-relaxed">
-            Make groups as large as possible to simplify the expression. Remember, groups must be rectangular and contain 1s (or 0s for POS) and can include Xs if needed. Try to cover all the 1s (or 0s) with as few groups as possible! The edge columns and rows are logically adjacent with each other, so don't forget to wrap around when making groups. To determine the expression, look at the group and see which variable did not change within the group. The rules are essentially flipped when switching from SOP to POS! Try it out!
+            Make groups as large as possible to simplify the expression. Remember, groups must be rectangular and contain 1s (or 0s for POS) and can include Xs if needed. Try to cover all the 1s (or 0s) with as few groups as possible. The edge columns and rows are logically adjacent with each other, so don't forget to wrap around when making groups. To determine the expression, look at the group and see which variable did not change within the group. The rules are essentially flipped when switching from SOP to POS! Try it out!
           </div>
         </div>
       </div>
