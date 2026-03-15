@@ -209,7 +209,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
               <div className="flex flex-wrap items-center gap-2">
                 {gameState.tutorial_expression_terms.map((term, idx) => (
                   <React.Fragment key={`${term}-${idx}`}>
-                    {idx > 0 && (
+                    {idx > 0 && gameState.q_form === 'min' && (
                       <span className="text-slate-400 font-semibold">+</span>
                     )}
                     <span
