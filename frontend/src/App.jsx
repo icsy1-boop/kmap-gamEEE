@@ -112,6 +112,7 @@ function App() {
                 showGroupings={gameState?.difficulty !== 4 || globalState !== 'show' || isLastAnswerCorrect}
                 forceGroupings={gameState?.is_tutorial || false}
                 cellValues={gameState?.is_tutorial ? gameState.tutorial_cells : undefined}
+                disableCells={gameState?.is_tutorial ? gameState.tutorial_busy : false}
                 onToggleCell={gameState?.is_tutorial ? (index => {
                   if (gameState.tutorial_busy) {
                     return;

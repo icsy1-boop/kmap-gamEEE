@@ -26,8 +26,8 @@ const About = ({ onBack }) => {
           <div>
             <div className="text-sm uppercase tracking-wide text-cyan-300">Contributors</div>
             <ul className="mt-2 space-y-1">
-              <li>Adelson Chua — The dreamer</li>
-              <li>Lawrence Quizon — The mastermind</li>
+              <li>Adelson Chua — The Dreamer</li>
+              <li>Lawrence Quizon — The Mastermind</li>
               <p>The world builders:</p>
               <li>Francois Abedejos — Pioneering Developer</li>
               <li>Shaira Rodriguez — Feature developer (Expansion pack 1)</li>

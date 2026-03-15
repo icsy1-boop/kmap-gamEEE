@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true, cellValues, onToggleCell, forceGroupings = false}) => {
+const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGroupings = true, cellValues, onToggleCell, forceGroupings = false, disableCells = false}) => {
 
     const sizeMap = {
         5: "grid grid-cols-2 gap-4",
@@ -129,8 +129,8 @@ const Kmap = ({dont_cares, form, num_var, terms, groupings, globalState, showGro
             components.push(
             <div 
                 key={i} 
-                className={`border-2 border-slate-600 aspect-square bg-slate-800/50 backdrop-blur-sm rounded-md sm:rounded-lg flex justify-center items-center shadow-lg hover:bg-slate-700/50 hover:border-slate-500 transition-all duration-200 ${onToggleCell ? "cursor-pointer select-none" : ""}`}
-                onClick={onToggleCell ? () => onToggleCell(absoluteIndex) : undefined}
+                className={`border-2 border-slate-600 aspect-square bg-slate-800/50 backdrop-blur-sm rounded-md sm:rounded-lg flex justify-center items-center shadow-lg hover:bg-slate-700/50 hover:border-slate-500 transition-all duration-200 ${onToggleCell ? "cursor-pointer select-none" : ""} ${disableCells ? "pointer-events-none opacity-80" : ""}`}
+                onClick={onToggleCell && !disableCells ? () => onToggleCell(absoluteIndex) : undefined}
             >
                 <span className={`font-bold ${cellSizeClass} ${val === "1" ? "text-cyan-300" : val === "0" ? "text-slate-300" : "text-amber-100"}`}>
                     {val}
