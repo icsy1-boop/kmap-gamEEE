@@ -206,18 +206,22 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           <div className="text-xs uppercase tracking-wide text-slate-400">Simplified Expression</div>
           <div className="mt-2 text-sm sm:text-base break-words">
             {gameState.tutorial_expression_terms && gameState.tutorial_expression_terms.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {gameState.tutorial_expression_terms.map((term, idx) => (
-                  <span
-                    key={`${term}-${idx}`}
-                    className="px-2 py-1 rounded-md border text-cyan-100"
-                    style={{
-                      borderColor: `rgb(${COLORS[idx % COLORS.length]})`,
-                      backgroundColor: `rgba(${COLORS[idx % COLORS.length]}, 0.15)`,
-                    }}
-                  >
-                    {term}
-                  </span>
+                  <React.Fragment key={`${term}-${idx}`}>
+                    {idx > 0 && (
+                      <span className="text-slate-400 font-semibold">+</span>
+                    )}
+                    <span
+                      className="px-2 py-1 rounded-md border text-cyan-100"
+                      style={{
+                        borderColor: `rgb(${COLORS[idx % COLORS.length]})`,
+                        backgroundColor: `rgba(${COLORS[idx % COLORS.length]}, 0.15)`,
+                      }}
+                    >
+                      {term}
+                    </span>
+                  </React.Fragment>
                 ))}
               </div>
             ) : (
