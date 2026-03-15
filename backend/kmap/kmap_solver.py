@@ -447,6 +447,14 @@ def tutorial_solve(num_var: int, terms: list[int], dont_cares: list[int], form_t
     chosen_expression = minimal_expressions[0]
     expression_str = stringifyExpression(expression=chosen_expression, form_answer=form_terms)
 
+    def _stringify_term(term_set: set[str], form: str) -> str:
+        literals = sorted(list(term_set))
+        if form == "min":
+            return "".join(literals)
+        return "(" + "+".join(literals) + ")"
+
+    expression_terms = [_stringify_term(term_set, form_terms) for term_set in chosen_expression]
+
     literal_sets = [set(expr) for expr in chosen_expression]
     implicants_by_literals = {frozenset(_implicant_to_literal_set(num_var, pi, form_terms)): pi for pi in prime_implicants}
 
@@ -467,7 +475,7 @@ def tutorial_solve(num_var: int, terms: list[int], dont_cares: list[int], form_t
             groups.append(covered)
 
     groupings = _groups_to_groupings(num_var, groups)
-    return {"expression": expression_str, "groupings": groupings}
+    return {"expression": expression_str, "groupings": groupings, "terms": expression_terms}
 
 
 

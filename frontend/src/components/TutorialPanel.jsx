@@ -1,9 +1,30 @@
 import React, { useEffect } from 'react'
 import { apiUrl } from '../config/api'
 
+const COLORS = [
+  "59,130,246",
+  "239,68,68",
+  "245,158,11",
+  "45,212,191",
+  "168,85,247",
+  "16,185,129",
+  "249,115,22",
+  "14,165,233",
+  "236,72,153",
+  "251,191,36",
+  "34,197,94",
+  "132,204,22",
+]
+
 const TutorialPanel = ({ gameState, setGameState }) => {
   const solve = async (nextState) => {
     try {
+      setGameState((prev) => ({
+        ...prev,
+        ...nextState,
+        tutorial_busy: true,
+      }))
+
       const response = await fetch(apiUrl('/tutorial-solve'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,12 +43,16 @@ const TutorialPanel = ({ gameState, setGameState }) => {
         ...nextState,
         q_groupings: data.groupings || [],
         tutorial_expression: data.expression || '',
+        tutorial_expression_terms: data.terms || [],
+        tutorial_busy: false,
       })
     } catch (error) {
       setGameState({
         ...nextState,
         q_groupings: [],
         tutorial_expression: '',
+        tutorial_expression_terms: [],
+        tutorial_busy: false,
       })
     } finally {
     }
@@ -36,16 +61,28 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   const deriveTermsFromCells = (cells, form, numVar) => {
     const twos = ["0", "1"]
     const fours = ["00", "01", "11", "10"]
-    const outerRows = numVar === 4 ? fours : twos
+    const outerRows = numVar >= 4 ? fours : twos
     const outerCols = numVar === 2 ? twos : fours
-    const rowCount = outerRows.length
     const colCount = outerCols.length
+
     const terms = []
     const dontCares = []
+
     for (let i = 0; i < cells.length; i += 1) {
-      const row = Math.floor(i / colCount)
-      const col = i % colCount
-      const mapped = parseInt(`${outerRows[row]}${outerCols[col]}`, 2)
+      let mapped = 0
+      if (numVar <= 4) {
+        const row = Math.floor(i / colCount)
+        const col = i % colCount
+        mapped = parseInt(`${outerRows[row]}${outerCols[col]}`, 2)
+      } else {
+        const layer = Math.floor(i / 16)
+        const local = i % 16
+        const row = Math.floor(local / 4)
+        const col = local % 4
+        const within = parseInt(`${outerRows[row]}${outerCols[col]}`, 2)
+        mapped = layer * 16 + within
+      }
+
       if (cells[i] === 'x') {
         dontCares.push(mapped)
       } else if (form === 'min' && cells[i] === 1) {
@@ -54,6 +91,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
         terms.push(mapped)
       }
     }
+
     return { terms, dontCares }
   }
 
@@ -110,6 +148,8 @@ const TutorialPanel = ({ gameState, setGameState }) => {
       q_dont_cares: [],
       q_groupings: [],
       tutorial_expression: '',
+      tutorial_expression_terms: [],
+      tutorial_busy: false,
     }
     solve(nextState)
   }
@@ -122,17 +162,28 @@ const TutorialPanel = ({ gameState, setGameState }) => {
             <div className="text-sm text-slate-400">Tutorial Mode</div>
             <div className="text-lg font-bold text-cyan-300">{gameState.q_num_var}-Variable K-Map</div>
           </div>
+
           <button
             type="button"
             onClick={toggleForm}
-            className="px-4 py-2 rounded-lg border border-cyan-500/40 text-cyan-200 hover:bg-cyan-900/20 transition"
+            className={`relative h-8 w-16 rounded-full border transition ${
+              gameState.q_form === 'min'
+                ? 'border-cyan-400 bg-cyan-900/30'
+                : 'border-rose-400 bg-rose-900/30'
+            }`}
+            aria-pressed={gameState.q_form === 'min'}
           >
-            {gameState.q_form === 'min' ? 'SOP' : 'POS'}
+            <span
+              className={`absolute top-0.5 h-7 w-7 rounded-full bg-white shadow transition ${
+                gameState.q_form === 'min' ? 'left-0.5' : 'left-8'
+              }`}
+            />
+            <span className="sr-only">Toggle SOP/POS</span>
           </button>
         </div>
 
-        <div className="mb-4 flex items-center gap-2">
-          {[2, 3, 4].map((numVar) => (
+        <div className="mb-4 flex items-center gap-2 flex-wrap">
+          {[2, 3, 4, 5, 6].map((numVar) => (
             <button
               key={numVar}
               type="button"
@@ -150,13 +201,30 @@ const TutorialPanel = ({ gameState, setGameState }) => {
 
         <div className="mb-4 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
           <div className="text-xs uppercase tracking-wide text-slate-400">Simplified Expression</div>
-          <div className="mt-2 text-cyan-200 text-sm sm:text-base break-words">
-            {gameState.tutorial_expression || '?'}
+          <div className="mt-2 text-sm sm:text-base break-words">
+            {gameState.tutorial_expression_terms && gameState.tutorial_expression_terms.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {gameState.tutorial_expression_terms.map((term, idx) => (
+                  <span
+                    key={`${term}-${idx}`}
+                    className="px-2 py-1 rounded-md border text-cyan-100"
+                    style={{
+                      borderColor: `rgb(${COLORS[idx % COLORS.length]})`,
+                      backgroundColor: `rgba(${COLORS[idx % COLORS.length]}, 0.15)`,
+                    }}
+                  >
+                    {term}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-cyan-200">{gameState.tutorial_expression || '-'} </span>
+            )}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="text-xs text-slate-400">Click cells to toggle 0 → 1 → X</div>
+          <div className="text-xs text-slate-400">Click cells to toggle 0 - 1 - X</div>
           <button
             type="button"
             onClick={resetMap}
@@ -164,6 +232,13 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           >
             Reset
           </button>
+        </div>
+
+        <div className="mt-5 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-400">Di ka nakinig sa lecture noh?</div>
+          <div className="mt-2 text-sm text-slate-300 leading-relaxed">
+            Make groups as large as possible to simplify the expression. Remember, groups must be rectangular and contain 1s (or 0s for POS) and can include Xs if needed. Try to cover all the 1s (or 0s) with as few groups as possible! The edge columns and rows are logically adjacent with each other, so don't forget to wrap around when making groups. To determine the expression, look at the group and see which variable did not change within the group. The rules are essentially flipped when switching from SOP to POS! Try it out!
+          </div>
         </div>
       </div>
     </div>

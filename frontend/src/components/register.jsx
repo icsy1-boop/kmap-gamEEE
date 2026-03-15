@@ -5,19 +5,21 @@ import { apiUrl } from '../config/api';
 const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, isMapLoading }) => {
 
     const [difficulty, setDifficulty] = useState('medium')
-    const [expandedSection, setExpandedSection] = useState('practice')
+    const [expandedSection, setExpandedSection] = useState('tutorial')
     const [submitError, setSubmitError] = useState('')
     const [allowDontCares, setAllowDontCares] = useState(true)
     const blockClipboard = (e) => e.preventDefault();
 
     // Organize difficulties by category
     const difficultyCategories = {
+        tutorial: [
+            { value: 'tutorial', label: 'Tutorial', color: 'blue', description: 'Sandbox K-Map' }
+        ],
         practice: [
             { value: 'easy', label: 'Easy', color: 'emerald', description: '2-3 variables' },
             { value: 'medium', label: 'Medium', color: 'cyan', description: '3-4 variables' },
             { value: 'hard', label: 'Hard', color: 'amber', description: '5-6 variables' },
-            { value: 'progressive', label: 'Progressive', color: 'purple', description: 'Adaptive difficulty' },
-            { value: 'tutorial', label: 'Tutorial', color: 'blue', description: 'Sandbox K-Map' }
+            { value: 'progressive', label: 'Progressive', color: 'purple', description: 'Adaptive difficulty' }
         ],
         timeAttack: [
             { value: 'timed', label: 'Timed Challenge', color: 'rose', description: 'Daily Timed Challenge!' },
@@ -57,6 +59,8 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
                     q_groupings: [],
                     tutorial_cells: Array(16).fill(0),
                     tutorial_expression: '',
+                    tutorial_expression_terms: [],
+                    tutorial_busy: false,
                 };
                 setGlobalName(username);
                 setGameState(tutorialState);
@@ -166,6 +170,46 @@ const Register = ({ globalName, setGlobalName, setGameState, setIsMapLoading, is
                     <label className="block text-cyan-300 font-semibold text-sm uppercase tracking-wide my-3">
                         Select Difficulty
                     </label>
+
+                    {/* Tutorial Section */}
+                    <div className="border border-cyan-500/30 rounded-xl overflow-hidden">
+                        <button
+                            onClick={() => setExpandedSection(expandedSection === 'tutorial' ? null : 'tutorial')}
+                            className="w-full px-4 py-3 bg-cyan-900/20 hover:bg-cyan-900/30 flex items-center justify-between transition-all"
+                        >
+                            <span className="font-semibold text-cyan-300">Tutorial</span>
+                            <svg className={`w-5 h-5 text-cyan-300 transition-transform ${expandedSection === 'tutorial' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
+                        </button>
+                        {expandedSection === 'tutorial' && (
+                            <div className="p-3 space-y-2 bg-slate-900/50">
+                                {difficultyCategories.tutorial.map((diff) => (
+                                    <button
+                                        key={diff.value}
+                                        type="button"
+                                        onClick={() => setDifficulty(diff.value)}
+                                        className={`w-full p-3 rounded-lg border-2 transition-all duration-200 text-left ${
+                                            difficulty === diff.value
+                                                ? `bg-gradient-to-br ${getDifficultyColor(diff.value)} shadow-lg border-opacity-100`
+                                                : 'bg-slate-800/50 border-slate-600 hover:border-slate-500 hover:bg-slate-800/70'
+                                        }`}
+                                    >
+                                        <div className={`font-semibold ${
+                                            difficulty === diff.value ? 'text-white' : 'text-slate-300'
+                                        }`}>
+                                            {diff.label}
+                                        </div>
+                                        <div className={`text-xs ${
+                                            difficulty === diff.value ? 'text-white/70' : 'text-slate-500'
+                                        }`}>
+                                            {diff.description}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Practice Section */}
                     <div className="border border-cyan-500/30 rounded-xl overflow-hidden">

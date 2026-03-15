@@ -113,6 +113,9 @@ function App() {
                 forceGroupings={gameState?.is_tutorial || false}
                 cellValues={gameState?.is_tutorial ? gameState.tutorial_cells : undefined}
                 onToggleCell={gameState?.is_tutorial ? (index => {
+                  if (gameState.tutorial_busy) {
+                    return;
+                  }
                   const nextCells = [...gameState.tutorial_cells];
                   const current = nextCells[index];
                   const nextVal = current === 0 ? 1 : current === 1 ? "x" : 0;
