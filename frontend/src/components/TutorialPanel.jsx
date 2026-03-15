@@ -138,6 +138,9 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }
 
   const setVariables = (numVar) => {
+    if (gameState.tutorial_busy) {
+      return
+    }
     const nextCells = Array(2 ** numVar).fill(0)
     const nextState = {
       ...gameState,
@@ -191,11 +194,12 @@ const TutorialPanel = ({ gameState, setGameState }) => {
               key={numVar}
               type="button"
               onClick={() => setVariables(numVar)}
+              disabled={gameState.tutorial_busy}
               className={`px-3 py-1.5 rounded-lg border text-sm transition ${
                 gameState.q_num_var === numVar
                   ? 'border-cyan-400 text-cyan-200 bg-cyan-900/30'
                   : 'border-slate-600 text-slate-300 hover:bg-slate-800/60'
-              }`}
+              } ${gameState.tutorial_busy ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
               {numVar} Vars
             </button>
