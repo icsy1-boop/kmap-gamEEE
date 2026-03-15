@@ -163,7 +163,9 @@ const TutorialPanel = ({ gameState, setGameState }) => {
             <div className="text-lg font-bold text-cyan-300">{gameState.q_num_var}-Variable K-Map</div>
           </div>
 
-          <button
+          <div className="flex flex-col items-end gap-1">
+            <div className="text-[10px] uppercase tracking-wide text-slate-400">Toggle SOP/POS</div>
+            <button
             type="button"
             onClick={toggleForm}
             className={`relative h-8 w-16 rounded-full border transition ${
@@ -179,7 +181,8 @@ const TutorialPanel = ({ gameState, setGameState }) => {
               }`}
             />
             <span className="sr-only">Toggle SOP/POS</span>
-          </button>
+            </button>
+          </div>
         </div>
 
         <div className="mb-4 flex items-center gap-2 flex-wrap">
