@@ -26,11 +26,12 @@ const About = ({ onBack }) => {
           <div>
             <div className="text-sm uppercase tracking-wide text-cyan-300">Contributors</div>
             <ul className="mt-2 space-y-1">
-              <li>Adelson Chua — Complain Here</li>
-              <li>Lawrence Quizon — If above not available</li>
-              <li>Francois Abedejos — Actually complain here</li>
-              <li>Shaira Rodriguez — Blame if u hate your 143 lab</li>
-              <li>Isaac Sy — Just kidding, complain here</li>
+              <li>Adelson Chua — The dreamer</li>
+              <li>Lawrence Quizon — The mastermind</li>
+              <br>The world builders:</br>
+              <li>Francois Abedejos — Pioneering Developer</li>
+              <li>Shaira Rodriguez — Feature developer (Expansion pack 1)</li>
+              <li>Isaac Sy — Feature developer (Expansion pack 2)</li>
             </ul>
           </div>
 
