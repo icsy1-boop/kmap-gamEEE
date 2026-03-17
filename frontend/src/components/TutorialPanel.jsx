@@ -188,7 +188,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }
 
   return (
-    <div className="w-full max-w-md card-fade-in mb-8 sm:mb-10 px-2 sm:px-0">
+    <div className="w-full max-w-md card-fade-in mb-8 sm:mb-10 px-2 sm:px-0 mt-4 sm:mt-6">
       <div className="w-full p-4 sm:p-6 md:p-8 from-slate-800 via-slate-900 to-slate-800 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-cyan-500/95">
         <div className="mb-3 sm:mb-4 flex items-center justify-between gap-3">
           <div>

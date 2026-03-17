@@ -64,7 +64,9 @@ function App() {
       {showAbout && globalName === '' ? (
         <About onBack={() => setShowAbout(false)} />
       ) : (
-      <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center relative justify-center p-6">
+      <div className={`min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex relative justify-center p-6 ${
+        gameState?.is_tutorial ? 'items-start pt-10 sm:pt-12' : 'items-center'
+      }`}>
 
         {globalName === '' && (
           <button
@@ -95,7 +97,9 @@ function App() {
           />
         ) : (
           
-          <div className="absolute flex flex-col lg:flex-row items-center z-3 justify-center gap-8 w-full">
+          <div className={`absolute flex flex-col lg:flex-row z-3 justify-center gap-8 w-full ${
+            gameState?.is_tutorial ? 'items-start' : 'items-center'
+          }`}>
 
             
             <div
