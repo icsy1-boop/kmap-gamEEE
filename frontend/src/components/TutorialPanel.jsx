@@ -188,9 +188,9 @@ const TutorialPanel = ({ gameState, setGameState }) => {
   }
 
   return (
-    <div className="w-full max-w-md card-fade-in mb-10">
-      <div className="w-full p-5 sm:p-8 md:p-10 from-slate-800 via-slate-900 to-slate-800 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-cyan-500/95">
-        <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="w-full max-w-md card-fade-in mb-8 sm:mb-10 px-2 sm:px-0">
+      <div className="w-full p-4 sm:p-6 md:p-8 from-slate-800 via-slate-900 to-slate-800 backdrop-blur-lg rounded-2xl shadow-2xl border-2 border-cyan-500/95">
+        <div className="mb-3 sm:mb-4 flex items-center justify-between gap-3">
           <div>
             <div className="text-sm text-slate-400">Tutorial Mode</div>
             <div className="text-lg font-bold text-cyan-300">{gameState.q_num_var}-Variable K-Map</div>
@@ -219,7 +219,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           </div>
         </div>
 
-        <div className="mb-4 flex items-center gap-2 flex-wrap">
+        <div className="mb-3 sm:mb-4 flex items-center gap-2 flex-wrap">
           {[2, 3, 4, 5, 6].map((numVar) => (
             <button
               key={numVar}
@@ -237,7 +237,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           ))}
         </div>
 
-        <div className="mb-4 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
+        <div className="mb-3 sm:mb-4 rounded-xl border border-slate-700/60 bg-slate-900/50 p-3 sm:p-4">
           <div className="text-xs uppercase tracking-wide text-slate-400">Simplified Expression</div>
           <div className="mt-2 text-sm sm:text-base break-words">
             {gameState.tutorial_expression_terms && gameState.tutorial_expression_terms.length > 0 ? (
@@ -265,7 +265,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="text-xs text-slate-400">Click cells to toggle 0 -> 1 -> X</div>
           <button
             type="button"
@@ -279,7 +279,7 @@ const TutorialPanel = ({ gameState, setGameState }) => {
           </button>
         </div>
 
-        <div className="mt-5 rounded-xl border border-slate-700/60 bg-slate-900/50 p-4">
+        <div className="mt-4 sm:mt-5 rounded-xl border border-slate-700/60 bg-slate-900/50 p-3 sm:p-4">
           <div className="text-xs uppercase tracking-wide text-slate-400">Di ka nakinig sa lecture noh?</div>
           <div className="mt-2 text-sm text-slate-300 leading-relaxed">
             Make groups as large as possible to simplify the expression. Remember, groups must be rectangular and contain 1s (or 0s for POS) and can include Xs if needed. Try to cover all the 1s (or 0s) with as few groups as possible. The edge columns and rows are logically adjacent with each other, so don't forget to wrap around when making groups. To determine the expression, look at the group and see which variable did not change within the group. The rules are essentially flipped when switching from SOP to POS! Try it out!
